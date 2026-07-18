@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Powerfleet | Control Center V15</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-7xl mx-auto bg-white p-8 rounded-lg shadow-xl">
+        <h1 class="text-2xl font-bold text-teal-800 mb-6">Powerfleet Registro de Solicitudes</h1>
+        <form id="form-registro" class="space-y-8">
+            <div id="contenedor-seg1" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+            <div id="contenedor-seg2-equipo1" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+            <div id="contenedor-seg2-equipo2" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+            <button type="button" id="btn-enviar" class="w-full bg-teal-800 text-white p-5 font-bold rounded-lg hover:bg-teal-900 transition text-lg shadow-lg">Sincronizar a Nube</button>
+        </form>
+    </div>
+
+    <script>
+        const config = [
+            {n:1, l:"1 NO"}, {n:2, l:"2 Vigencia", type:"select", opt:["2020","2021","2022","2023","2024","2025","2026","2027","2028","2029","2030"]}, 
+            {n:3, l:"3 CASO"}, {n:4, l:"4 Comentario"}, {n:5, l:"5 Asignación", type:"select", opt:["AXA","MAS SEGUROS"]},
+            {n:6, l:"6 Ejecutivo asignado", type:"select", opt:["Hugo Lopez","Noemi Trujillo","Fernando Diaz","Neidy Vega"]},
+            {n:7, l:"7 PROGRAMA", type:"select", opt:["UNITOS","FLOTILLAS"]}, {n:8, l:"8 NOMBRE DE LA CUENTA"},
+            {n:9, l:"9 INICIO DE VIGENCIA", type:"date"}, {n:10, l:"10 FIN DE VIGENCIA", type:"date"},
+            {n:11, l:"11 NUMERO DE POLIZA"}, {n:12, l:"12 INCISO"}, {n:13, l:"13 MARCA"}, {n:14, l:"14 SUBMARCA"},
+            {n:15, l:"15 AÑO"}, {n:16, l:"16 N.DESERIE"}, {n:17, l:"17 TIPO DE GPS INSTALADO", type:"select", opt:["GPS Localización y recuperación (Cajas)","GPS Localización y recuperación (Tractos)","GPS Localización + Paro de motor (Tractos de alto riesgo)","GPS Localización + Paro de motor (Tractos)","Camara (ADAS/DMS)","GPS Localización y recuperación (vehiculo ligero)"]},
+            {n:18, l:"18 TIPO DE UNIDAD", type:"select", opt:["REMOLQUE","SEMIREMOLQUE","TRACTO","CAMION","VEHICULO LIGERO"]},
+            {n:19, l:"19 FECHA DE SOLICITUD POR PARTE DE AXA", type:"date"}, {n:20, l:"20 FECHA DE INSTALACIÓN DE GPS", type:"date"},
+            {n:21, l:"21 NOMBRE DEL PROVEEDOR", val:"POWERFLEET"}, {n:22, l:"22 NOMBRE DEL SUSCRIPTOR QUE ENVIO LA SOLICITUD"},
+            {n:23, l:"23 FECHA DE LA ÚLTIMA TRANSMISIÓN DEL GPS", type:"date"}, {n:24, l:"24 HORA DE LA ÚLTIMA TRANSMISIÓN DEL GPS", type:"time"},
+            {n:25, l:"25 ESTATUS DE INSTALACIÓN", type:"select", opt:["Instalado","En proceso de instalación","Sin disponibilidad del asegurado","Fuera de seguimiento","Cancelado o sin registro"]},
+            {n:26, l:"26 PLACA2"}, {n:27, l:"27 Vehicle Serie"}, {n:28, l:"28 Vehicle Licence Plate ID"}, {n:29, l:"29 Licence Plate"}, {n:30, l:"30 VAT Registration No"},
+            {n:31, l:"31 Sell To"}, {n:32, l:"32 Pre Service Start Date", type:"date"}, {n:33, l:"33 Device"}, {n:34, l:"34 Remarks1"},
+            {n:35, l:"35 Vehicle Manufacturer"}, {n:36, l:"36 Vehicle Model"}, {n:37, l:"37 Vehicle Year"}, {n:38, l:"38 Vehicle Color"}, {n:39, l:"39 Policy", type:"date"}, {n:40, l:"40 Policy Start Date", type:"date"}, {n:41, l:"41 Policy End Date", type:"date"},
+            {n:42, l:"42 ID2"}, {n:43, l:"43 Last Trans"}, {n:44, l:"44 End Service Date", type:"date"}, {n:45, l:"45 Document No"}, {n:46, l:"46 Vehicle Serie2"}, {n:47, l:"47 Vehicle Licence Plate ID3"}, {n:48, l:"48 Licence Plate4"}, {n:49, l:"49 VAT Registration No 5"},
+            {n:50, l:"50 Sell To6"}, {n:51, l:"51 Pre Service Start Date7", type:"date"}, {n:52, l:"52 Device8"}, {n:53, l:"53 Remarks19"}, {n:54, l:"54 Vehicle Manufacturer10"}, {n:55, l:"55 Vehicle Model11"}, {n:56, l:"56 Vehicle Year12"}, {n:57, l:"57 Vehicle Color13"},
+            {n:58, l:"58 Policy14"}, {n:59, l:"59 Policy Start Date15", type:"date"}, {n:60, l:"60 Policy End Date16", type:"date"}, {n:61, l:"61 ID217"}, {n:62, l:"62 Last Trans18"}, {n:63, l:"63 End Service Date19", type:"date"}, {n:64, l:"64 Document No20"}
+        ];
+
+        function crearInput(i) {
+            let c = config.find(x => x.n === i) || {n:i, l:i+" - Campo "+i, type:"text"};
+            let html = `<div class="flex flex-col"><label class="font-bold text-[10px] text-teal-900 mb-1">${c.l}</label>`;
+            if(c.type === "select") {
+                html += `<select id="c${i}" class="p-2 border rounded text-sm"><option value="">Seleccionar...</option>${c.opt.map(o=>`<option>${o}</option>`).join('')}</select>`;
+            } else {
+                html += `<input type="${c.type || 'text'}" id="c${i}" value="${c.val || ''}" class="p-2 border rounded text-sm">`;
+            }
+            return html + `</div>`;
+        }
+
+        document.getElementById('contenedor-seg1').innerHTML = Array.from({length:26}, (_,i)=>i+1).map(crearInput).join('');
+        document.getElementById('contenedor-seg2-equipo1').innerHTML = Array.from({length:19}, (_,i)=>i+27).map(crearInput).join('');
+        document.getElementById('contenedor-seg2-equipo2').innerHTML = Array.from({length:19}, (_,i)=>i+46).map(crearInput).join('');
+
+        document.getElementById('btn-enviar').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-enviar');
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            const p = {};
+            for(let i = 1; i <= 64; i++) {
+                let el = document.getElementById('c' + i);
+                p['c' + i] = el ? el.value : "";
+            }
+
+            console.log("Enviando a Google:", JSON.stringify(p));
+
+            try {
+                await fetch('https://script.google.com/macros/s/AKfycbzMdC0ULJiYaOM1as7mOgKKFKJUWYUyo_zAX-xowRCXGHnlxw7-Qan44CVRNBQ3b9NXww/exec', { 
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    body: JSON.stringify(p) 
+                });
+                alert('Sincronización finalizada.');
+                document.getElementById('form-registro').reset();
+            } catch(e) { 
+                alert('Error técnico: ' + e); 
+            }
+            btn.innerText = "Sincronizar a Nube";
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>
