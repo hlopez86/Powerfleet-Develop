@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 <style>
   :root{
     --bg: #F4F8F6;
@@ -169,6 +170,95 @@
   }
   .fila-cuenta:last-child{ border-bottom:none; }
   button.fila-cuenta:hover{ background:var(--panel-2); }
+
+  /* ===== MÓDULO CONSTANCIA (scope propio, no interfiere con el resto) ===== */
+  #seg-constancia{
+    --ctc-pf-green:#0c3b2e;
+    --ctc-pf-green-2:#135c47;
+    --ctc-bg:#f4f6f7;
+    --ctc-text:#1b1b1b;
+    --ctc-muted:#666;
+    --ctc-border:#d9d9d9;
+    font-family:"Century Gothic", Arial, sans-serif;
+    color:var(--ctc-text);
+  }
+  #seg-constancia .ctc-titulo{
+    background:var(--ctc-pf-green); color:#fff; padding:14px 20px;
+    font-size:16px; font-weight:700; border-radius:12px 12px 0 0;
+  }
+  #seg-constancia .ctc-container{
+    display:flex; flex-wrap:wrap; gap:18px; padding:18px;
+    background:var(--ctc-bg); border-radius:0 0 12px 12px;
+  }
+  #seg-constancia .ctc-formulario{
+    width:100%; max-width:360px; background:#fff; border-radius:12px;
+    box-shadow:0 6px 20px rgba(0,0,0,.08); padding:16px;
+  }
+  #seg-constancia .ctc-formulario label{
+    display:block; font-weight:600; margin:10px 0 6px; color:#233; font-size:12.5px;
+  }
+  #seg-constancia .ctc-formulario input[type="text"],
+  #seg-constancia .ctc-formulario input[type="date"]{
+    width:100%; box-sizing:border-box; padding:9px 10px;
+    border:1px solid var(--ctc-border); border-radius:8px; outline:none; font-size:13px;
+  }
+  #seg-constancia .ctc-formulario input[type="file"]{
+    width:100%; box-sizing:border-box; padding:8px 0; font-size:12.5px;
+  }
+  #seg-constancia .ctc-hint{ font-size:11.5px; color:var(--ctc-muted); margin-top:4px; line-height:1.35; }
+  #seg-constancia .ctc-btn{
+    width:100%; border:0; border-radius:10px; padding:10px 12px; margin-top:10px;
+    background:var(--ctc-pf-green); color:#fff; font-weight:700; cursor:pointer; font-size:13px;
+  }
+  #seg-constancia .ctc-btn:hover{ background:var(--ctc-pf-green-2); }
+  #seg-constancia .ctc-btn.secondary{ background:#e9f2ef; color:var(--ctc-pf-green); border:1px solid #cfe2db; }
+  #seg-constancia .ctc-btn.secondary:hover{ background:#dff0ea; }
+  #seg-constancia .ctc-row{ display:flex; gap:10px; }
+  #seg-constancia .ctc-row .ctc-col{ flex:1; }
+  #seg-constancia .ctc-unidades-header{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
+  #seg-constancia .ctc-unidades-header h4{ margin:0; color:var(--ctc-pf-green); font-size:13px; }
+  #seg-constancia .ctc-chip{
+    font-size:11px; background:#eef6f3; border:1px solid #d7e8e1; color:var(--ctc-pf-green);
+    padding:4px 8px; border-radius:999px;
+  }
+  #seg-constancia .ctc-unidad-card{
+    border:1px solid var(--ctc-border); border-radius:12px; padding:12px; margin-top:10px; background:#fbfbfb;
+  }
+  #seg-constancia .ctc-unidad-card .ctc-card-top{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+  }
+  #seg-constancia .ctc-unidad-card .ctc-card-top b{ color:#233; font-size:12.5px; }
+  #seg-constancia .ctc-btn-mini{
+    border:1px solid #f0c7c7; background:#fff2f2; color:#8a1c1c; border-radius:10px;
+    padding:6px 10px; font-weight:700; cursor:pointer; font-size:12px;
+  }
+  #seg-constancia .ctc-btn-mini:hover{ background:#ffe7e7; }
+  #seg-constancia .ctc-preview{
+    width:100%; max-width:680px; margin:0 auto; background:#fff;
+    padding:25px 55px 120px 55px; border:1px solid #ddd; position:relative;
+    word-wrap:break-word; overflow-wrap:break-word;
+  }
+  #seg-constancia .ctc-doc-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+  #seg-constancia .ctc-doc-logo{ max-height:58px; width:auto; object-fit:contain; }
+  #seg-constancia .ctc-doc-direccion{ text-align:right; font-size:11.5px; color:#444; line-height:1.35; }
+  #seg-constancia .ctc-doc-body p{ margin:6px 0; line-height:1.4; }
+  #seg-constancia .ctc-doc-body ul{ margin:6px 0 8px 18px; line-height:1.4; }
+  #seg-constancia .ctc-preview table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:12px; }
+  #seg-constancia .ctc-preview th{ background:var(--ctc-pf-green); color:#fff; padding:6px; border:1px solid #2a6a57; }
+  #seg-constancia .ctc-preview td{
+    border:1px solid var(--ctc-border); padding:4px; text-align:center;
+    word-break:break-word; max-width:150px;
+  }
+  #seg-constancia .ctc-firma{ margin-top:34px; }
+  #seg-constancia .ctc-firma img{ width:190px; max-width:100%; height:auto; object-fit:contain; display:block; }
+  #seg-constancia .ctc-footer{
+    position:absolute; bottom:25px; left:60px; right:60px;
+    display:flex; justify-content:space-between; font-size:10px; color:#888;
+    border-top:1px solid #e5e5e5; padding-top:8px;
+  }
+  @media print{
+    #seg-constancia *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
 </style>
 </head>
 <body class="min-h-screen pb-28">
@@ -198,7 +288,7 @@
   <main class="max-w-6xl mx-auto px-5 pt-8">
 
     <!-- ===== TABS DE SEGMENTOS ===== -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-7">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
       <button type="button" class="tab-btn tab-active" data-tab="seg-buscar" style="--tag-color:var(--blue)">
         <span class="tab-num">01</span>
         <div>
@@ -218,6 +308,13 @@
         <div>
           <p class="text-[13px] font-semibold">Buscar por Cuenta</p>
           <p class="text-[11px] text-[var(--muted)]">Registros y KPIs por razón social</p>
+        </div>
+      </button>
+      <button type="button" class="tab-btn" data-tab="seg-constancia" style="--tag-color:#0c3b2e">
+        <span class="tab-num">04</span>
+        <div>
+          <p class="text-[13px] font-semibold">Generar Constancia</p>
+          <p class="text-[11px] text-[var(--muted)]">Documento de servicio en PDF</p>
         </div>
       </button>
     </div>
@@ -280,6 +377,111 @@
 
       <div class="tabla-cuenta-scroll rounded-2xl border border-[var(--line)] bg-white shadow-sm">
         <div id="lista-cuenta"></div>
+      </div>
+    </section>
+
+    <!-- ===== SEGMENTO 4 · GENERAR CONSTANCIA ===== -->
+    <section id="seg-constancia" class="segment-panel">
+      <div class="rounded-2xl overflow-hidden shadow-sm border border-[var(--line)]">
+        <div class="ctc-titulo">📄 Generador de Constancia de Servicio — Powerfleet</div>
+
+        <div class="ctc-container">
+
+          <!-- FORMULARIO -->
+          <div class="ctc-formulario">
+            <label>Fecha</label>
+            <input type="date" id="ctc-fecha">
+
+            <label>Cliente / Razón social</label>
+            <input type="text" id="ctc-cliente" placeholder="Ej. AXA Seguros">
+
+            <label>Logo (PNG/JPG)</label>
+            <input type="file" id="ctc-logoFile" accept="image/*">
+            <div class="ctc-hint">Se embebe en el documento para que el PDF no falle por rutas locales.</div>
+
+            <label>Firma (PNG/JPG)</label>
+            <input type="file" id="ctc-firmaFile" accept="image/*">
+            <div class="ctc-hint">Se embebe en el documento para garantizar que salga en el PDF.</div>
+
+            <div class="ctc-unidades-header">
+              <h4>Unidades</h4>
+              <span class="ctc-chip" id="ctc-contadorUnidades">0 / 10</span>
+            </div>
+
+            <div id="ctc-unidadesContainer"></div>
+
+            <button class="ctc-btn secondary" type="button" onclick="ctcAgregarUnidad()">➕ Añadir unidad</button>
+            <button class="ctc-btn" type="button" onclick="ctcGenerar()">✅ Generar documento</button>
+            <button class="ctc-btn" type="button" onclick="ctcDescargar()">📥 Descargar PDF</button>
+            <button class="ctc-btn secondary" type="button" onclick="window.print()">🖨️ Imprimir / Guardar como PDF (alternativa)</button>
+          </div>
+
+          <!-- DOCUMENTO -->
+          <div class="ctc-preview" id="ctc-documento" style="flex:1; min-width:320px;">
+            <div class="ctc-doc-header">
+              <img id="ctc-logoImg" class="ctc-doc-logo" alt="Logo" style="display:none;">
+              <div class="ctc-doc-direccion">
+                Tecoyotitla 412, Local 102<br>
+                Álvaro Obregón, Ciudad de México<br>
+                01050
+              </div>
+            </div>
+
+            <div class="ctc-doc-body">
+              <br><br>
+              <p><b>Ciudad de México a <span id="ctc-v-fecha"></span></b></p>
+              <p><b>A quien corresponda:</b></p>
+
+              <p>Por medio de la presente hacemos constar que:</p>
+              <p><b><span id="ctc-v-cliente"></span></b></p>
+
+              <p>
+                Tiene contratado con <b>POINTER RECUPERACION DE MEXICO S.A. DE C.V.</b>,<br>
+                el servicio de localización de vehículos con licencia <b>Powerfleet Unity</b><br>
+                (Registro de Permiso ante Secretaría de Seguridad y Protección Ciudadana DGSP/311-13/2498).
+              </p>
+
+              <p><b>Además de contar con los siguientes servicios y prestaciones:</b></p>
+              <ul>
+                <li>Ubicación actual de flotilla vehicular, así como de su trayectoria.</li>
+                <li>Recorrido histórico de los trayectos realizados por el vehículo monitoreado.</li>
+                <li>Puntos de interés o de trabajo.</li>
+                <li>Reportes: Distancia recorrida, tiempo de traslado, velocidad, entre otros.</li>
+                <li>Botón de asistencia.</li>
+                <li>Geo-cercas de entradas y salidas.</li>
+              </ul>
+
+              <p><b>Cuenta con soporte de servicio:</b></p>
+              <ul>
+                <li>Call Center de Emergencias 24 x 7 x 365</li>
+                <li>Cobertura Nacional</li>
+                <li>Servicio Técnico Nacional</li>
+                <li>Apoyo en la recuperación vehicular a nivel nacional ante eventos de robo (paro de motor)</li>
+                <li>Carrier con APN privado con Telcel y Movistar</li>
+              </ul>
+
+              <table>
+                <thead>
+                  <tr><th>Marca</th><th>Submarca</th><th>Año</th><th>Serie (VIN)</th></tr>
+                </thead>
+                <tbody id="ctc-tablaUnidades"></tbody>
+              </table>
+
+              <p style="margin-top:14px;">Se extiende la presente para los fines que convengan.</p>
+
+              <div class="ctc-firma">
+                <img id="ctc-firmaImg" alt="Firma" style="display:none;">
+                <p><b>Gerente de Atención a Clientes</b></p>
+              </div>
+            </div>
+
+            <div class="ctc-footer">
+              <div>Confidencial</div>
+              <div>Página 1</div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
 
@@ -705,6 +907,204 @@
     btn.textContent = modoEdicion ? 'Actualizar Registro' : "Sincronizar a Nube";
     btn.disabled = false;
   });
+
+  // ==================================================================
+  // ===== MÓDULO CONSTANCIA (independiente, prefijo ctc-/Ctc) =====
+  // ==================================================================
+  const CTC_MAX_UNIDADES = 10;
+
+  function ctcSafeFilePart(text){
+    if (!text) return "";
+    return text.toString()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9 _-]/g, "")
+      .trim()
+      .replace(/\s+/g, "_")
+      .substring(0, 60);
+  }
+
+  function ctcFileDateFromInput(dateValue){
+    if (!dateValue) return "";
+    const [yyyy, mm, dd] = dateValue.split("-");
+    if (!yyyy || !mm || !dd) return "";
+    return `${dd}-${mm}-${yyyy}`;
+  }
+
+  function ctcFileToDataURL(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function ctcWaitImg(imgEl){
+    return new Promise((resolve) => {
+      if (!imgEl || !imgEl.src) return resolve();
+      if (imgEl.complete) return resolve();
+      imgEl.onload = () => resolve();
+      imgEl.onerror = () => resolve();
+    });
+  }
+
+  function ctcActualizarContador(){
+    const count = document.querySelectorAll("#seg-constancia .ctc-unidad-card").length;
+    document.getElementById("ctc-contadorUnidades").innerText = `${count} / ${CTC_MAX_UNIDADES}`;
+  }
+
+  function ctcGetPrimerVIN(){
+    const cards = document.querySelectorAll("#seg-constancia .ctc-unidad-card");
+    for (const card of cards){
+      const vin = card.querySelector(".inp-serie")?.value?.trim();
+      if (vin) return vin;
+    }
+    return "";
+  }
+
+  document.getElementById("ctc-logoFile").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await ctcFileToDataURL(file);
+    const img = document.getElementById("ctc-logoImg");
+    img.src = dataUrl;
+    img.style.display = "block";
+  });
+
+  document.getElementById("ctc-firmaFile").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await ctcFileToDataURL(file);
+    const img = document.getElementById("ctc-firmaImg");
+    img.src = dataUrl;
+    img.style.display = "block";
+  });
+
+  function ctcAgregarUnidad(){
+    const current = document.querySelectorAll("#seg-constancia .ctc-unidad-card").length;
+    if (current >= CTC_MAX_UNIDADES){
+      alert("Máximo 10 unidades");
+      return;
+    }
+
+    const idx = current + 1;
+    const card = document.createElement("div");
+    card.className = "ctc-unidad-card";
+    card.innerHTML = `
+      <div class="ctc-card-top">
+        <b>Unidad ${idx}</b>
+        <button class="ctc-btn-mini" type="button" onclick="ctcEliminarUnidad(this)">Eliminar</button>
+      </div>
+      <div class="ctc-row">
+        <div class="ctc-col">
+          <label style="margin:0 0 6px;">Marca</label>
+          <input type="text" class="inp-marca" placeholder="Ej. International">
+        </div>
+        <div class="ctc-col">
+          <label style="margin:0 0 6px;">Submarca</label>
+          <input type="text" class="inp-submarca" placeholder="Ej. (modelo)">
+        </div>
+      </div>
+      <div class="ctc-row">
+        <div class="ctc-col">
+          <label style="margin:10px 0 6px;">Año</label>
+          <input type="text" class="inp-anio" placeholder="Ej. 2024">
+        </div>
+        <div class="ctc-col">
+          <label style="margin:10px 0 6px;">Serie (VIN)</label>
+          <input type="text" class="inp-serie" placeholder="Ej. 3HSDZAPT6RN200759">
+        </div>
+      </div>
+    `;
+    document.getElementById("ctc-unidadesContainer").appendChild(card);
+
+    ctcRenumerarUnidades();
+    ctcActualizarContador();
+  }
+
+  function ctcEliminarUnidad(btn){
+    const card = btn.closest(".ctc-unidad-card");
+    if (card) card.remove();
+    ctcRenumerarUnidades();
+    ctcActualizarContador();
+  }
+
+  function ctcRenumerarUnidades(){
+    const cards = document.querySelectorAll("#seg-constancia .ctc-unidad-card");
+    let i = 1;
+    for (const card of cards){
+      const title = card.querySelector(".ctc-card-top b");
+      if (title) title.innerText = `Unidad ${i}`;
+      i++;
+    }
+  }
+
+  function ctcGenerar(){
+    const fechaInput = document.getElementById("ctc-fecha").value;
+    if (fechaInput){
+      const fecha = new Date(fechaInput);
+      const opciones = { day:"numeric", month:"long", year:"numeric" };
+      document.getElementById("ctc-v-fecha").innerText = fecha.toLocaleDateString("es-ES", opciones);
+    } else {
+      document.getElementById("ctc-v-fecha").innerText = "";
+    }
+
+    document.getElementById("ctc-v-cliente").innerText = document.getElementById("ctc-cliente").value || "";
+
+    const tbody = document.getElementById("ctc-tablaUnidades");
+    tbody.innerHTML = "";
+
+    const cards = document.querySelectorAll("#seg-constancia .ctc-unidad-card");
+    for (const card of cards){
+      const marca = card.querySelector(".inp-marca")?.value || "";
+      const sub = card.querySelector(".inp-submarca")?.value || "";
+      const anio = card.querySelector(".inp-anio")?.value || "";
+      const serie = card.querySelector(".inp-serie")?.value || "";
+
+      if (marca || sub || anio || serie){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${marca}</td><td>${sub}</td><td>${anio}</td><td>${serie}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+  }
+
+  async function ctcDescargar(){
+    ctcGenerar();
+
+    if (!window.html2pdf){
+      alert("No se cargó html2pdf. Revisa conexión o bloqueos.");
+      return;
+    }
+
+    await ctcWaitImg(document.getElementById("ctc-logoImg"));
+    await ctcWaitImg(document.getElementById("ctc-firmaImg"));
+
+    const clienteRaw = document.getElementById("ctc-cliente").value || "Cliente";
+    const cliente = ctcSafeFilePart(clienteRaw) || "Cliente";
+
+    const fechaRaw = document.getElementById("ctc-fecha").value;
+    const fechaArchivo = ctcFileDateFromInput(fechaRaw) || "SinFecha";
+
+    const vinRaw = ctcGetPrimerVIN();
+    const vin = ctcSafeFilePart(vinRaw) || "SinVIN";
+
+    const filename = `Constancia_${cliente}_${fechaArchivo}_${vin}.pdf`;
+    const element = document.getElementById("ctc-documento");
+
+    const opt = {
+      margin: 5,
+      filename,
+      image: { type:"jpeg", quality:0.98 },
+      html2canvas: { scale:2, logging:false },
+      jsPDF: { unit:"mm", format:"a4", orientation:"portrait" }
+    };
+
+    html2pdf().set(opt).from(element).toPdf().save();
+  }
+
+  // Inicia con 1 unidad por defecto
+  ctcAgregarUnidad();
 </script>
 </body>
 </html>
