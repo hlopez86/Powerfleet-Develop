@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Powerfleet | Registro de Unidades GPS</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -96,6 +97,7 @@
 
   .step-panel{ display:none; }
   .step-panel.active{ display:block; animation:fadeUp .35s ease; }
+  .panel-tab.hidden{ display:none; }
   @media (prefers-reduced-motion: reduce){ .step-panel.active{ animation:none; } }
   @keyframes fadeUp{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
 
@@ -116,62 +118,23 @@
   .btn-ghost{ background:#FFFFFF; border:1px solid var(--line); color:var(--text); }
   .btn-ghost:hover{ border-color:#B7CBC3; background:var(--panel-2); }
 
-  /* ===== Segmentos (nivel superior) ===== */
-  .segment-panel{ display:none; }
-  .segment-panel.active{ display:block; animation:fadeUp .35s ease; }
+  .tab-principal{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; font-weight:600; letter-spacing:.02em;
+    padding:9px 16px; border-radius:10px;
+    color:var(--muted); background:#FFFFFF; border:1px solid var(--line);
+    transition:all .15s ease; cursor:pointer;
+  }
+  .tab-principal:hover{ border-color:#B7CBC3; }
+  .tab-principal.active{ background:var(--green); border-color:var(--green); color:#FFFFFF; box-shadow:0 4px 12px rgba(0,100,78,0.2); }
 
-  .tab-btn{
-    display:flex; align-items:center; gap:10px;
-    padding:12px 16px; border-radius:12px;
-    border:1px solid var(--line); background:#FFFFFF;
-    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
-    text-align:left; flex:1;
-  }
-  .tab-btn:hover{ border-color:#B7CBC3; }
-  .tab-btn.tab-active{
-    border-color:var(--tag-color);
-    background:color-mix(in srgb, var(--tag-color) 6%, white);
-    box-shadow:0 0 0 3px color-mix(in srgb, var(--tag-color) 14%, transparent);
-  }
-  .tab-num{
-    width:30px; height:30px; border-radius:999px; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    border:1px solid var(--line); color:var(--muted);
-    font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:600;
-  }
-  .tab-btn.tab-active .tab-num{ background:var(--tag-color); border-color:var(--tag-color); color:#fff; }
-
-  /* ===== Resultados de búsqueda (dropdown) ===== */
-  .resultado-item{
-    display:flex; flex-direction:column; gap:2px;
-    width:100%; text-align:left; padding:10px 12px;
-    border-bottom:1px solid var(--line-soft);
-    transition:background .1s ease;
-  }
-  .resultado-item:last-child{ border-bottom:none; }
-  .resultado-item:hover{ background:var(--panel-2); }
-
-  /* ===== KPI cards ===== */
-  .kpi-card{
-    background:#FFFFFF; border:1px solid var(--line); border-radius:12px;
-    padding:14px 16px; min-width:150px; flex:1;
-    border-top:3px solid var(--tag-color, var(--green));
-  }
-
-  /* ===== Filas de resultados por cuenta ===== */
-  .fila-cuenta{
-    display:grid; grid-template-columns: 1fr 2fr 2fr 1.4fr; gap:10px; align-items:center;
-    width:100%; text-align:left; padding:12px 14px;
-    border-bottom:1px solid var(--line-soft);
-    transition:background .1s ease;
-  }
-  .fila-cuenta:last-child{ border-bottom:none; }
-  .fila-cuenta:hover{ background:var(--panel-2); }
+  .resultado-item{ cursor:pointer; }
+  .kpi-card{ background:#FFFFFF; border:1px solid var(--line); border-radius:12px; padding:14px; }
 </style>
 </head>
 <body class="min-h-screen pb-28">
 
-  <!-- ===== HEADER / CONSOLE BAR ===== -->
+  <!-- ===== HEADER ===== -->
   <header class="console-bg border-b border-[var(--line)] sticky top-0 z-40 backdrop-blur bg-[var(--bg)]/90">
     <div class="max-w-6xl mx-auto px-5 py-4 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -193,58 +156,41 @@
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-5 pt-8">
+  <!-- ===== NAV PRINCIPAL (3 segmentos) ===== -->
+  <nav class="max-w-6xl mx-auto px-5 pt-6 flex flex-wrap gap-2" id="nav-principal">
+    <button type="button" class="tab-principal" data-tab="buscar">🔍 Buscar / Editar</button>
+    <button type="button" class="tab-principal" data-tab="nuevo">🆕 Nuevo Registro</button>
+    <button type="button" class="tab-principal" data-tab="cuenta">🏢 Cuenta</button>
+  </nav>
 
-    <!-- ===== TABS DE SEGMENTOS ===== -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-7">
-      <button type="button" class="tab-btn tab-active" data-tab="seg-buscar" style="--tag-color:var(--blue)">
-        <span class="tab-num">01</span>
-        <div>
-          <p class="text-[13px] font-semibold">Buscar por N° de Serie</p>
-          <p class="text-[11px] text-[var(--muted)]">Localiza un registro existente</p>
-        </div>
-      </button>
-      <button type="button" class="tab-btn" data-tab="seg-registro" style="--tag-color:var(--green)">
-        <span class="tab-num">02</span>
-        <div>
-          <p class="text-[13px] font-semibold">Nuevo / Editar Registro</p>
-          <p class="text-[11px] text-[var(--muted)]">Captura los 64 campos</p>
-        </div>
-      </button>
-      <button type="button" class="tab-btn" data-tab="seg-cuenta" style="--tag-color:var(--orange)">
-        <span class="tab-num">03</span>
-        <div>
-          <p class="text-[13px] font-semibold">Buscar por Cuenta</p>
-          <p class="text-[11px] text-[var(--muted)]">Registros y KPIs por razón social</p>
-        </div>
-      </button>
-    </div>
+  <main class="max-w-6xl mx-auto px-5 pt-5">
 
-    <!-- ===== SEGMENTO 1 · BUSCAR POR N° DE SERIE ===== -->
-    <section id="seg-buscar" class="segment-panel active">
-      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
-        <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-3">Buscar registro por N° de Serie</p>
-        <input type="text" id="buscar-serie" placeholder="Escribe al menos 6 caracteres del número de serie…" class="field-input" style="--tag-color:var(--blue)">
-        <p class="text-[11px] text-[var(--muted)] mt-2">Se muestran hasta 5 coincidencias aproximadas. Escribe el valor exacto completo para precisión total.</p>
-        <div id="resultados-serie" class="hidden mt-3 rounded-xl border border-[var(--line)] overflow-hidden bg-white"></div>
+    <!-- ===== TAB: BUSCAR / EDITAR ===== -->
+    <section class="panel-tab hidden" data-tab-panel="buscar">
+      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 shadow-sm">
+        <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-3">Buscador único de registros</p>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <select id="buscar-campo" class="field-input sm:w-48" style="--tag-color:var(--green)">
+            <option value="c1">NO</option>
+            <option value="c3" selected>CASO</option>
+            <option value="c26">Placa</option>
+            <option value="c16">N° de Serie</option>
+          </select>
+          <input type="text" id="buscar-valor" placeholder="Escribe para buscar (mín. 4 caracteres, o el N° de Serie exacto)…" class="field-input flex-1" style="--tag-color:var(--green)">
+        </div>
+        <p id="estado-busqueda" class="mono text-[11px] mt-2 text-[var(--muted)]"></p>
+        <div id="resultados-busqueda" class="mt-3 space-y-2"></div>
       </div>
     </section>
 
-    <!-- ===== SEGMENTO 2 · NUEVO / EDITAR REGISTRO ===== -->
-    <section id="seg-registro" class="segment-panel">
+    <!-- ===== TAB: NUEVO REGISTRO ===== -->
+    <section class="panel-tab hidden" data-tab-panel="nuevo">
 
-      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
-        <div class="flex items-center justify-between mb-1">
-          <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase">Estado del registro</p>
-          <button type="button" id="btn-nuevo" class="hidden text-[11px] mono text-[var(--blue)] font-semibold hover:underline">+ Nuevo registro</button>
-        </div>
-        <div id="banner-edicion" class="hidden mt-2 text-[12px] px-3 py-2 rounded-lg" style="background:color-mix(in srgb, var(--blue) 10%, white); border:1px solid color-mix(in srgb, var(--blue) 35%, transparent); color:var(--blue)">
-          ✎ Editando un registro existente — los cambios sobrescribirán la fila original al sincronizar.
-        </div>
-        <p id="sin-edicion-msg" class="text-[11px] text-[var(--muted)] mt-2">Llenando un registro nuevo. Usa el segmento 01 si buscas editar uno existente.</p>
+      <div id="banner-edicion" class="hidden mb-4 text-[12px] px-4 py-3 rounded-xl flex items-center justify-between gap-3" style="background:color-mix(in srgb, var(--blue) 10%, white); border:1px solid color-mix(in srgb, var(--blue) 35%, transparent); color:var(--blue)">
+        <span>✎ Editando un registro existente — los cambios sobrescribirán la fila original al sincronizar.</span>
+        <button type="button" id="btn-nuevo" class="mono text-[11px] font-semibold hover:underline whitespace-nowrap">+ Nuevo registro</button>
       </div>
 
-      <!-- ===== STEPPER ===== -->
       <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
         <div class="flex items-center justify-between mb-1">
           <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase">Progreso del registro</p>
@@ -259,29 +205,28 @@
       <form id="form-registro">
         <div id="steps-container"></div>
       </form>
-
     </section>
 
-    <!-- ===== SEGMENTO 3 · BUSCAR POR CUENTA ===== -->
-    <section id="seg-cuenta" class="segment-panel">
-      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
-        <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-3">Buscar por Nombre de Cuenta / Razón Social</p>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <input type="text" id="buscar-cuenta-valor" placeholder="Escribe el nombre de la cuenta…" class="field-input flex-1" style="--tag-color:var(--orange)">
-          <button type="button" id="btn-buscar-cuenta" class="btn-ghost text-[13px] font-medium px-5 py-2.5 rounded-lg transition whitespace-nowrap">Buscar</button>
+    <!-- ===== TAB: CUENTA ===== -->
+    <section class="panel-tab hidden" data-tab-panel="cuenta">
+      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 shadow-sm mb-5">
+        <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-3">Buscar por cuenta / razón social</p>
+        <input type="text" id="cuenta-valor" placeholder="Escribe el nombre de la cuenta (mín. 2 caracteres)…" class="field-input" style="--tag-color:var(--blue)">
+        <div class="flex items-center justify-between mt-2">
+          <p id="estado-cuenta" class="mono text-[11px] text-[var(--muted)]"></p>
+          <button type="button" id="btn-exportar-cuenta" class="hidden btn-ghost text-[12px] font-medium px-3.5 py-2 rounded-lg transition whitespace-nowrap">⬇ Exportar a Excel</button>
         </div>
-        <p id="estado-cuenta" class="mono text-[11px] mt-2"></p>
       </div>
 
-      <div id="kpi-cuenta" class="flex flex-wrap gap-3 mb-5"></div>
+      <div id="kpi-cuenta" class="hidden grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5"></div>
 
-      <div id="lista-cuenta" class="rounded-2xl border border-[var(--line)] overflow-hidden bg-white shadow-sm"></div>
+      <div id="lista-cuenta" class="space-y-2"></div>
     </section>
 
   </main>
 
-  <!-- ===== ACTION BAR (fija, solo visible en segmento 02) ===== -->
-  <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--line)] bg-[var(--bg)]/95 backdrop-blur" style="display:none">
+  <!-- ===== ACTION BAR (solo visible en Nuevo Registro) ===== -->
+  <div id="barra-accion" class="hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--line)] bg-[var(--bg)]/95 backdrop-blur">
     <div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
       <button type="button" id="btn-prev" class="btn-ghost text-[13px] font-medium px-4 py-2.5 rounded-lg transition">← Anterior</button>
       <div class="flex items-center gap-3">
@@ -316,18 +261,25 @@
     {n:58, l:"58 Policy14"}, {n:59, l:"59 Policy Start Date15", type:"date"}, {n:60, l:"60 Policy End Date16", type:"date"}, {n:61, l:"61 ID217"}, {n:62, l:"62 Last Trans18"}, {n:63, l:"63 End Service Date19", type:"date"}, {n:64, l:"64 Document No20"}
   ];
 
-  // ===== Definición de los 3 pasos internos del segmento "Nuevo / Editar Registro" =====
   const STEPS = [
     {id:1, from:1,  to:26, color:'#00644E', code:'01', title:'Registro de Unidad',              sub:'Caso, póliza y datos del vehículo'},
     {id:2, from:27, to:45, color:'#485FDF', code:'02', title:'Equipo 1 · Datos Complementarios', sub:'Información de sincronización — equipo 1'},
     {id:3, from:46, to:64, color:'#F37224', code:'03', title:'Equipo 2 / UR · Datos Complementarios', sub:'Información de sincronización — equipo 2 / UR'}
   ];
 
+  const ESTATUS_COLORES = {
+    'Instalado': 'var(--green)',
+    'En proceso de instalación': 'var(--blue)',
+    'Sin disponibilidad del asegurado': 'var(--orange)',
+    'Fuera de seguimiento': '#B8860B',
+    'Cancelado o sin registro': 'var(--danger)',
+    'Sin estatus': 'var(--muted)'
+  };
+  function colorEstatus(v){ return ESTATUS_COLORES[v] || 'var(--muted)'; }
+
   let current = 1;
 
-  function limpiarLabel(txt){
-    return txt.replace(/^\d+\s*/, '');
-  }
+  function limpiarLabel(txt){ return txt.replace(/^\d+\s*/, ''); }
 
   function crearInput(i, color){
     const c = config.find(x => x.n === i) || {n:i, l:i+" - Campo "+i, type:"text"};
@@ -429,21 +381,27 @@
 
   document.getElementById('steps-container').addEventListener('input', actualizarProgreso);
   document.getElementById('steps-container').addEventListener('change', actualizarProgreso);
-  actualizarProgreso();
-  irAPaso(1);
 
-  // ===== Navegación entre segmentos =====
-  function mostrarSegmento(id){
-    document.querySelectorAll('.segment-panel').forEach(s => s.classList.toggle('active', s.id === id));
-    document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === id));
-    document.getElementById('action-bar').style.display = (id === 'seg-registro') ? 'block' : 'none';
+  // ===== NAV PRINCIPAL (tabs) =====
+  function cambiarTabPrincipal(tab){
+    document.querySelectorAll('.tab-principal').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.panel-tab').forEach(p => p.classList.toggle('hidden', p.dataset.tabPanel !== tab));
+    document.getElementById('barra-accion').classList.toggle('hidden', tab !== 'nuevo');
     window.scrollTo({top:0, behavior:'smooth'});
   }
-  document.querySelectorAll('[data-tab]').forEach(btn=>{
-    btn.addEventListener('click', () => mostrarSegmento(btn.dataset.tab));
-  });
+  document.querySelectorAll('.tab-principal').forEach(b => b.addEventListener('click', () => cambiarTabPrincipal(b.dataset.tab)));
 
-  // ===== Modo edición (registro cargado desde una búsqueda) =====
+  function cargarRegistroEnFormulario(registro){
+    for(let i = 1; i <= 64; i++){
+      const el = document.getElementById('c'+i);
+      if(el) el.value = registro.datos['c'+i] || '';
+    }
+    actualizarProgreso();
+    activarModoEdicion(registro.fila);
+    cambiarTabPrincipal('nuevo');
+  }
+
+  // ===== Modo edición =====
   let modoEdicion = false;
   let filaActual = null;
 
@@ -451,8 +409,6 @@
     modoEdicion = true;
     filaActual = fila;
     document.getElementById('banner-edicion').classList.remove('hidden');
-    document.getElementById('sin-edicion-msg').classList.add('hidden');
-    document.getElementById('btn-nuevo').classList.remove('hidden');
     const btn = document.getElementById('btn-enviar');
     btn.textContent = 'Actualizar Registro';
     btn.style.background = 'var(--blue)';
@@ -462,8 +418,7 @@
     modoEdicion = false;
     filaActual = null;
     document.getElementById('banner-edicion').classList.add('hidden');
-    document.getElementById('sin-edicion-msg').classList.remove('hidden');
-    document.getElementById('btn-nuevo').classList.add('hidden');
+    document.getElementById('estado-busqueda').textContent = '';
     const btn = document.getElementById('btn-enviar');
     btn.textContent = 'Sincronizar a Nube';
     btn.style.background = '';
@@ -471,167 +426,202 @@
     actualizarProgreso();
     irAPaso(1);
   }
-
   document.getElementById('btn-nuevo').addEventListener('click', salirModoEdicion);
 
-  // ===== SEGMENTO 1 · Búsqueda en vivo por N° de Serie =====
-  let debounceSerie;
-  const inputSerie = document.getElementById('buscar-serie');
-  const resultadosSerie = document.getElementById('resultados-serie');
+  // ===== TAB: Buscar / Editar (buscador único, resultados en vivo) =====
+  let ultimosResultados = [];
+  let temporizadorBusqueda = null;
 
-  inputSerie.addEventListener('input', () => {
-    clearTimeout(debounceSerie);
-    const valor = inputSerie.value.trim();
-    if(valor.length < 6){
-      resultadosSerie.classList.add('hidden');
-      resultadosSerie.innerHTML = '';
-      return;
-    }
-    debounceSerie = setTimeout(() => ejecutarBusquedaSerie(valor), 350);
-  });
-
-  async function ejecutarBusquedaSerie(valor){
-    resultadosSerie.classList.remove('hidden');
-    resultadosSerie.innerHTML = '<p class="mono text-[11px] text-[var(--muted)] px-3 py-2.5">Buscando…</p>';
-    try{
-      const response = await fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'buscarAproximado', valor }) });
-      const data = await response.json();
-
-      if(data.ok && data.resultados.length){
-        resultadosSerie.innerHTML = data.resultados.map(r => `
-          <button type="button" class="resultado-item" data-fila="${r.fila}">
-            <span class="flex items-center justify-between">
-              <span class="mono text-[12px] text-[var(--blue)] font-semibold">${r.c16 || '— sin serie —'}</span>
-              <span class="mono text-[10px] text-[var(--muted)]">fila ${r.fila}</span>
-            </span>
-            <span class="text-[12px] text-[var(--text)]">${r.c8 || 'Sin cuenta registrada'}</span>
-            <span class="mono text-[10px] text-[var(--muted)]">No ${r.c1 || '—'} · Caso ${r.c3 || '—'} · Placa ${r.c26 || '—'}</span>
-          </button>`).join('');
-
-        resultadosSerie.querySelectorAll('[data-fila]').forEach(btn=>{
-          btn.addEventListener('click', () => cargarRegistroPorFila(parseInt(btn.dataset.fila)));
-        });
-      } else {
-        resultadosSerie.innerHTML = `<p class="mono text-[11px] px-3 py-2.5" style="color:var(--danger)">${data.error || 'Sin coincidencias'}</p>`;
-      }
-    } catch(e){
-      resultadosSerie.innerHTML = `<p class="mono text-[11px] px-3 py-2.5" style="color:var(--danger)">Error de búsqueda: ${e}</p>`;
-    }
+  function renderResultado(r, idx){
+    const estatus = r.datos.c25 || 'Sin estatus';
+    return `<button type="button" data-idx="${idx}" class="resultado-item w-full text-left p-3 rounded-xl border border-[var(--line)] hover:border-[var(--green)] transition bg-white flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-[12px] font-medium truncate">${r.datos.c8 || '(sin cuenta)'} — CASO ${r.datos.c3 || '-'}</p>
+        <p class="mono text-[10px] text-[var(--muted)]">NO ${r.datos.c1 || '-'} · Placa ${r.datos.c26 || '-'} · Serie ${r.datos.c16 || '-'}</p>
+      </div>
+      <span class="mono text-[9px] px-2 py-1 rounded-full flex-shrink-0" style="color:${colorEstatus(estatus)}; background:color-mix(in srgb, ${colorEstatus(estatus)} 12%, white); border:1px solid color-mix(in srgb, ${colorEstatus(estatus)} 35%, transparent)">${estatus}</span>
+    </button>`;
   }
 
-  async function cargarRegistroPorFila(fila){
-    try{
-      const response = await fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'cargarFila', fila }) });
-      const data = await response.json();
-      if(data.ok){
-        for(let i = 1; i <= 64; i++){
-          const el = document.getElementById('c' + i);
-          if(el) el.value = data.datos['c' + i] || '';
+  function ejecutarBusquedaAprox(){
+    const campo = document.getElementById('buscar-campo').value;
+    const valor = document.getElementById('buscar-valor').value.trim();
+    const cont = document.getElementById('resultados-busqueda');
+    const estado = document.getElementById('estado-busqueda');
+    const esSerie = campo === 'c16';
+
+    if(!esSerie && valor.length < 4){
+      cont.innerHTML = '';
+      estado.textContent = valor.length === 0 ? '' : `Escribe al menos 4 caracteres (llevas ${valor.length}).`;
+      estado.style.color = 'var(--muted)';
+      return;
+    }
+    if(esSerie && valor.length === 0){
+      cont.innerHTML = ''; estado.textContent = ''; return;
+    }
+
+    estado.textContent = 'Buscando…'; estado.style.color = 'var(--muted)';
+
+    fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'buscarAprox', campo, valor }) })
+      .then(r => r.json())
+      .then(data => {
+        if(data.ok && data.resultados.length){
+          ultimosResultados = data.resultados;
+          estado.textContent = `${data.resultados.length} resultado(s)`;
+          estado.style.color = 'var(--green)';
+          cont.innerHTML = data.resultados.map(renderResultado).join('');
+          cont.querySelectorAll('[data-idx]').forEach(el=>{
+            el.addEventListener('click', () => cargarRegistroEnFormulario(ultimosResultados[parseInt(el.dataset.idx)]));
+          });
+        } else {
+          ultimosResultados = [];
+          estado.textContent = 'Sin resultados.';
+          estado.style.color = 'var(--danger)';
+          cont.innerHTML = '';
         }
-        actualizarProgreso();
-        activarModoEdicion(data.fila);
-        mostrarSegmento('seg-registro');
-        irAPaso(1);
-      } else {
-        alert(data.error || 'No se pudo cargar el registro.');
-      }
-    } catch(e){
-      alert('Error al cargar el registro (revisa consola F12): ' + e);
-    }
+      })
+      .catch(e => {
+        estado.textContent = 'Error de búsqueda: ' + e;
+        estado.style.color = 'var(--danger)';
+      });
   }
 
-  // ===== SEGMENTO 3 · Búsqueda por Nombre de Cuenta + KPIs =====
-  const inputCuenta = document.getElementById('buscar-cuenta-valor');
-  const estadoCuenta = document.getElementById('estado-cuenta');
-  const kpiCuenta = document.getElementById('kpi-cuenta');
-  const listaCuenta = document.getElementById('lista-cuenta');
+  document.getElementById('buscar-valor').addEventListener('input', () => {
+    clearTimeout(temporizadorBusqueda);
+    temporizadorBusqueda = setTimeout(ejecutarBusquedaAprox, 300);
+  });
+  document.getElementById('buscar-campo').addEventListener('change', ejecutarBusquedaAprox);
 
-  const ESTATUS_COLOR = {
-    'Instalado': 'var(--green)',
-    'En proceso de instalación': 'var(--blue)',
-    'Sin disponibilidad del asegurado': '#C79A00',
-    'Fuera de seguimiento': 'var(--orange)',
-    'Cancelado o sin registro': 'var(--danger)',
-    'Sin estatus': 'var(--muted)'
-  };
+  // ===== TAB: Cuenta (filtro + KPIs) =====
+  let ultimosRegistrosCuenta = [];
+  let temporizadorCuenta = null;
 
-  document.getElementById('btn-buscar-cuenta').addEventListener('click', ejecutarBusquedaCuenta);
-  inputCuenta.addEventListener('keydown', (e) => { if(e.key === 'Enter') ejecutarBusquedaCuenta(); });
-
-  async function ejecutarBusquedaCuenta(){
-    const valor = inputCuenta.value.trim();
-    if(!valor){
-      estadoCuenta.textContent = 'Escribe el nombre de la cuenta a buscar.';
-      estadoCuenta.style.color = 'var(--danger)';
-      return;
-    }
-
-    estadoCuenta.textContent = 'Buscando…';
-    estadoCuenta.style.color = 'var(--muted)';
-    kpiCuenta.innerHTML = '';
-    listaCuenta.innerHTML = '';
-
-    try{
-      const response = await fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'buscarPorCuenta', valor }) });
-      const data = await response.json();
-
-      if(data.ok && data.total > 0){
-        estadoCuenta.textContent = `✓ ${data.total} registro(s) encontrados para "${valor}"`;
-        estadoCuenta.style.color = 'var(--green)';
-        renderKpiCuenta(data);
-        renderListaCuenta(data.registros);
-      } else {
-        estadoCuenta.textContent = data.error || 'No se encontraron registros para esa cuenta.';
-        estadoCuenta.style.color = 'var(--danger)';
-      }
-    } catch(e){
-      estadoCuenta.textContent = 'Error de búsqueda (revisa consola F12): ' + e;
-      estadoCuenta.style.color = 'var(--danger)';
-    }
-  }
+  const ESTATUS_ORDEN = ['Instalado','En proceso de instalación','Sin disponibilidad del asegurado','Fuera de seguimiento','Cancelado o sin registro'];
 
   function renderKpiCuenta(data){
-    let cards = `
-      <div class="kpi-card" style="--tag-color:var(--text)">
-        <p class="mono text-[10px] text-[var(--muted)] uppercase">Total de registros</p>
-        <p class="text-[24px] font-semibold text-[var(--text)]">${data.total}</p>
+    let html = `<div class="kpi-card">
+        <p class="mono text-[9px] text-[var(--muted)] uppercase leading-tight">Total registros</p>
+        <p class="text-2xl font-semibold mt-1" style="color:var(--green)">${data.total}</p>
       </div>`;
-
-    Object.keys(data.kpi.estatus).forEach(estatus=>{
-      const color = ESTATUS_COLOR[estatus] || 'var(--muted)';
-      cards += `
-        <div class="kpi-card" style="--tag-color:${color}">
-          <p class="mono text-[10px] uppercase" style="color:${color}">${estatus}</p>
-          <p class="text-[24px] font-semibold text-[var(--text)]">${data.kpi.estatus[estatus]}</p>
-        </div>`;
+    ESTATUS_ORDEN.forEach(est=>{
+      const n = data.porEstatus[est] || 0;
+      html += `<div class="kpi-card">
+        <p class="mono text-[9px] text-[var(--muted)] uppercase leading-tight">${est}</p>
+        <p class="text-2xl font-semibold mt-1" style="color:${colorEstatus(est)}">${n}</p>
+      </div>`;
     });
-
-    kpiCuenta.innerHTML = cards;
+    return html;
   }
 
-  function renderListaCuenta(registros){
-    const encabezado = `
-      <div class="fila-cuenta mono text-[10px] text-[var(--muted)] uppercase" style="background:var(--panel-2)">
-        <span>No / Caso</span><span>Cuenta</span><span>Serie / Placa</span><span>Estatus</span>
-      </div>`;
+  // Campos a mostrar/exportar en la pestaña Cuenta: Caso, Asignación, Marca, Submarca, Año, N° Serie, Estatus
+  const COLUMNAS_CUENTA = [
+    {campo:'c3',  titulo:'Caso'},
+    {campo:'c5',  titulo:'Asignación'},
+    {campo:'c13', titulo:'Marca'},
+    {campo:'c14', titulo:'Submarca'},
+    {campo:'c15', titulo:'Año'},
+    {campo:'c16', titulo:'N° Serie'},
+    {campo:'c25', titulo:'Estatus'}
+  ];
 
-    const filas = registros.map(r => {
-      const color = ESTATUS_COLOR[r.c25] || 'var(--muted)';
-      return `
-        <button type="button" class="fila-cuenta" data-fila="${r.fila}">
-          <span class="mono text-[11px] text-[var(--blue)] font-semibold">No ${r.c1 || '—'} · ${r.c3 || 'sin caso'}</span>
-          <span class="text-[12px] text-[var(--text)] truncate">${r.c8 || '—'}</span>
-          <span class="mono text-[10px] text-[var(--muted)]">${r.c16 || '—'} · ${r.c26 || '—'}</span>
-          <span class="mono text-[10px] font-semibold" style="color:${color}">${r.c25 || 'Sin estatus'}</span>
-        </button>`;
+  function renderTablaCuenta(registros){
+    const filas = registros.map((r, idx) => {
+      const estatus = r.datos.c25 || 'Sin estatus';
+      const celdas = COLUMNAS_CUENTA.map(col => {
+        if(col.campo === 'c25'){
+          return `<td class="px-3 py-2"><span class="mono text-[9px] px-2 py-1 rounded-full" style="color:${colorEstatus(estatus)}; background:color-mix(in srgb, ${colorEstatus(estatus)} 12%, white); border:1px solid color-mix(in srgb, ${colorEstatus(estatus)} 35%, transparent)">${estatus}</span></td>`;
+        }
+        return `<td class="px-3 py-2 text-[12px]">${r.datos[col.campo] || '-'}</td>`;
+      }).join('');
+      return `<tr class="cuenta-row cursor-pointer hover:bg-[var(--panel-2)] transition" data-idx="${idx}">${celdas}</tr>`;
     }).join('');
 
-    listaCuenta.innerHTML = encabezado + filas;
+    const encabezados = COLUMNAS_CUENTA.map(c => `<th class="px-3 py-2 text-left">${c.titulo}</th>`).join('');
 
-    listaCuenta.querySelectorAll('[data-fila]').forEach(btn=>{
-      btn.addEventListener('click', () => cargarRegistroPorFila(parseInt(btn.dataset.fila)));
-    });
+    return `<div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl overflow-hidden shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="mono text-[9px] text-[var(--muted)] uppercase border-b border-[var(--line)] bg-[var(--panel-2)]">${encabezados}</tr>
+          </thead>
+          <tbody class="divide-y divide-[var(--line)]">${filas}</tbody>
+        </table>
+      </div>
+    </div>`;
   }
+
+  function exportarCuentaExcel(){
+    if(!ultimosRegistrosCuenta.length) return;
+    const encabezados = COLUMNAS_CUENTA.map(c => c.titulo);
+    const filas = ultimosRegistrosCuenta.map(r => COLUMNAS_CUENTA.map(c => r.datos[c.campo] || ''));
+    const ws = XLSX.utils.aoa_to_sheet([encabezados, ...filas]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+    const nombreCuenta = (document.getElementById('cuenta-valor').value.trim() || 'cuenta').replace(/[^a-z0-9]+/gi, '_');
+    XLSX.writeFile(wb, `powerfleet_${nombreCuenta}.xlsx`);
+  }
+  document.getElementById('btn-exportar-cuenta').addEventListener('click', exportarCuentaExcel);
+
+  function ejecutarBusquedaCuenta(){
+    const valor = document.getElementById('cuenta-valor').value.trim();
+    const estado = document.getElementById('estado-cuenta');
+    const kpiCont = document.getElementById('kpi-cuenta');
+    const listaCont = document.getElementById('lista-cuenta');
+    const btnExportar = document.getElementById('btn-exportar-cuenta');
+
+    if(valor.length < 2){
+      kpiCont.classList.add('hidden');
+      listaCont.innerHTML = '';
+      btnExportar.classList.add('hidden');
+      estado.textContent = valor.length === 0 ? '' : 'Escribe al menos 2 caracteres.';
+      estado.style.color = 'var(--muted)';
+      return;
+    }
+
+    estado.textContent = 'Buscando…'; estado.style.color = 'var(--muted)';
+
+    fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'buscarPorCuenta', valor }) })
+      .then(r => r.json())
+      .then(data => {
+        if(!data.ok){
+          estado.textContent = data.error || 'Sin resultados.';
+          estado.style.color = 'var(--danger)';
+          kpiCont.classList.add('hidden');
+          listaCont.innerHTML = '';
+          btnExportar.classList.add('hidden');
+          return;
+        }
+        if(data.total === 0){
+          estado.textContent = 'No hay registros para esa cuenta.';
+          estado.style.color = 'var(--danger)';
+          kpiCont.classList.add('hidden');
+          listaCont.innerHTML = '';
+          btnExportar.classList.add('hidden');
+          return;
+        }
+        ultimosRegistrosCuenta = data.registros;
+        estado.textContent = data.total > data.registros.length
+          ? `Mostrando ${data.registros.length} de ${data.total} registros`
+          : `${data.total} registro(s)`;
+        estado.style.color = 'var(--green)';
+        kpiCont.classList.remove('hidden');
+        kpiCont.innerHTML = renderKpiCuenta(data);
+        listaCont.innerHTML = renderTablaCuenta(data.registros);
+        listaCont.querySelectorAll('.cuenta-row').forEach(el=>{
+          el.addEventListener('click', () => cargarRegistroEnFormulario(ultimosRegistrosCuenta[parseInt(el.dataset.idx)]));
+        });
+        btnExportar.classList.remove('hidden');
+      })
+      .catch(e => {
+        estado.textContent = 'Error de búsqueda: ' + e;
+        estado.style.color = 'var(--danger)';
+      });
+  }
+
+  document.getElementById('cuenta-valor').addEventListener('input', () => {
+    clearTimeout(temporizadorCuenta);
+    temporizadorCuenta = setTimeout(ejecutarBusquedaCuenta, 350);
+  });
 
   // ===== Envío al Apps Script (crear o actualizar según el modo) =====
   document.getElementById('btn-enviar').addEventListener('click', async () => {
@@ -668,6 +658,11 @@
     btn.textContent = modoEdicion ? 'Actualizar Registro' : "Sincronizar a Nube";
     btn.disabled = false;
   });
+
+  // ===== Estado inicial =====
+  actualizarProgreso();
+  irAPaso(1);
+  cambiarTabPrincipal('nuevo');
 </script>
 </body>
 </html>
