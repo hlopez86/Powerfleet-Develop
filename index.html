@@ -163,8 +163,8 @@
   /* ===== Filas de resultados por cuenta ===== */
   .tabla-cuenta-scroll{ overflow-x:auto; }
   .fila-cuenta{
-    display:grid; grid-template-columns: 1.3fr 1.1fr 1fr 1fr .7fr 1.4fr 1.6fr; gap:10px; align-items:center;
-    width:100%; min-width:760px; text-align:left; padding:12px 14px;
+    display:grid; grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr .6fr 1.3fr 1.3fr .8fr; gap:10px; align-items:center;
+    width:100%; min-width:900px; text-align:left; padding:12px 14px;
     border-bottom:1px solid var(--line-soft);
     transition:background .1s ease;
   }
@@ -259,6 +259,36 @@
   @media print{
     #seg-constancia *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   }
+
+  /* ===== MÓDULO DIRECTORIO (scope propio, prefijo dir-) ===== */
+  #seg-directorio .dir-grid{
+    display:grid; grid-template-columns: 1fr 1.8fr; gap:20px;
+  }
+  @media (max-width: 900px){ #seg-directorio .dir-grid{ grid-template-columns: 1fr; } }
+  #seg-directorio .dir-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 1px 2px rgba(0,0,0,.02);
+  }
+  #seg-directorio .dir-search{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; margin-bottom:14px; font-size:13px;
+    background:var(--panel-2);
+  }
+  #seg-directorio .dir-search:focus{ outline:none; border-color:#7C5CF6; background:#fff; box-shadow:0 0 0 3px rgba(124,92,246,0.16); }
+  #seg-directorio .dir-table-wrap{ overflow-x:auto; }
+  #seg-directorio table.dir-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  #seg-directorio table.dir-table th{
+    background:#7C5CF6; color:#fff; padding:10px 8px; text-align:left; white-space:nowrap;
+  }
+  #seg-directorio table.dir-table td{ padding:10px 8px; border-bottom:1px solid var(--line-soft); vertical-align:middle; }
+  #seg-directorio table.dir-table tr:hover td{ background:var(--panel-2); }
+  #seg-directorio .dir-chip{
+    font-size:11px; background:#EFEAFE; border:1px solid #D8CCFB; color:#5B3FD9;
+    padding:3px 8px; border-radius:999px; font-weight:600;
+  }
+  #seg-directorio .dir-btn-edit{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:5px 11px; border-radius:8px; font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  #seg-directorio .dir-btn-edit:hover{ border-color:#7C5CF6; color:#7C5CF6; }
 </style>
 </head>
 <body class="min-h-screen pb-28">
@@ -288,7 +318,7 @@
   <main class="max-w-6xl mx-auto px-5 pt-8">
 
     <!-- ===== TABS DE SEGMENTOS ===== -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-7">
       <button type="button" class="tab-btn tab-active" data-tab="seg-buscar" style="--tag-color:var(--blue)">
         <span class="tab-num">01</span>
         <div>
@@ -315,6 +345,13 @@
         <div>
           <p class="text-[13px] font-semibold">Generar Constancia</p>
           <p class="text-[11px] text-[var(--muted)]">Documento de servicio en PDF</p>
+        </div>
+      </button>
+      <button type="button" class="tab-btn" data-tab="seg-directorio" style="--tag-color:#7C5CF6">
+        <span class="tab-num">05</span>
+        <div>
+          <p class="text-[13px] font-semibold">Directorio</p>
+          <p class="text-[11px] text-[var(--muted)]">Agenda de contactos por cuenta</p>
         </div>
       </button>
     </div>
@@ -482,6 +519,58 @@
           </div>
 
         </div>
+      </div>
+    </section>
+
+    <!-- ===== SEGMENTO 5 · DIRECTORIO ===== -->
+    <section id="seg-directorio" class="segment-panel">
+      <div class="dir-grid">
+
+        <!-- ALTA RÁPIDA -->
+        <div class="dir-card">
+          <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-4" id="dir-form-titulo">👤 Alta rápida de contacto</p>
+
+          <div class="field-wrap mb-3">
+            <label><span class="field-tag" style="--tag-color:#7C5CF6">NOM</span>Nombre completo</label>
+            <input type="text" id="dir-nombre" placeholder="Ej. Hugo López" class="field-input" style="--tag-color:#7C5CF6">
+          </div>
+          <div class="field-wrap mb-3">
+            <label><span class="field-tag" style="--tag-color:#7C5CF6">TEL</span>Teléfono de contacto</label>
+            <input type="text" id="dir-telefono" placeholder="Ej. 5512345678" class="field-input" style="--tag-color:#7C5CF6">
+          </div>
+          <div class="field-wrap mb-3">
+            <label><span class="field-tag" style="--tag-color:#7C5CF6">MAIL</span>Correo electrónico</label>
+            <input type="email" id="dir-correo" placeholder="Ej. hugo.lopez@powerfleet.com" class="field-input" style="--tag-color:#7C5CF6">
+          </div>
+          <div class="field-wrap mb-3">
+            <label><span class="field-tag" style="--tag-color:#7C5CF6">PTO</span>Puesto / Cargo</label>
+            <input type="text" id="dir-puesto" placeholder="Ej. Customer Service Coordinator" class="field-input" style="--tag-color:#7C5CF6">
+          </div>
+          <div class="field-wrap mb-4">
+            <label><span class="field-tag" style="--tag-color:#7C5CF6">CTA</span>Cliente corporativo asociado</label>
+            <input type="text" id="dir-cliente" placeholder="Escribe el nombre de la cuenta" class="field-input" style="--tag-color:#7C5CF6">
+          </div>
+
+          <button type="button" id="dir-btn-guardar" class="text-[13px] font-semibold px-4 py-2.5 rounded-lg w-full transition" style="background:#7C5CF6; color:#fff; box-shadow:0 4px 14px rgba(124,92,246,0.25)">Guardar en el Directorio</button>
+          <button type="button" id="dir-btn-cancelar" class="hidden btn-ghost text-[13px] font-medium px-4 py-2.5 rounded-lg w-full transition mt-2">Cancelar edición</button>
+          <p id="dir-estado" class="mono text-[11px] mt-3"></p>
+        </div>
+
+        <!-- AGENDA -->
+        <div class="dir-card">
+          <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-3">📇 Agenda de contactos</p>
+          <input type="text" id="dir-search" class="dir-search" placeholder="🔍 Busca por nombre, puesto o cuenta corporativa…">
+
+          <div class="dir-table-wrap rounded-xl border border-[var(--line)] overflow-hidden">
+            <table class="dir-table">
+              <thead>
+                <tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Cliente</th><th>Puesto</th><th></th></tr>
+              </thead>
+              <tbody id="dir-tabla-body"></tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -810,13 +899,13 @@
   function exportarExcelCuenta(){
     if(!ultimosRegistrosCuenta.length || typeof XLSX === 'undefined') return;
 
-    const encabezados = ['Caso', 'Asignación', 'Marca', 'Submarca', 'Año', 'N. Serie', 'Estatus'];
+    const encabezados = ['Caso', 'Asignación', 'Nombre de la Cuenta', 'Marca', 'Submarca', 'Año', 'N. Serie', 'Estatus', 'AP'];
     const filas = ultimosRegistrosCuenta.map(r => [
-      r.c3 || '', r.c5 || '', r.c13 || '', r.c14 || '', r.c15 || '', r.c16 || '', r.c25 || ''
+      r.c3 || '', r.c5 || '', r.c8 || '', r.c13 || '', r.c14 || '', r.c15 || '', r.c16 || '', r.c25 || '', r.c42 || ''
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet([encabezados, ...filas]);
-    ws['!cols'] = [{wch:14},{wch:16},{wch:14},{wch:14},{wch:8},{wch:20},{wch:28}];
+    ws['!cols'] = [{wch:14},{wch:16},{wch:26},{wch:14},{wch:14},{wch:8},{wch:20},{wch:28},{wch:12}];
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Registros');
@@ -848,7 +937,7 @@
   function renderListaCuenta(registros){
     const encabezado = `
       <div class="fila-cuenta mono text-[10px] text-[var(--muted)] uppercase" style="background:var(--panel-2)">
-        <span>Caso</span><span>Asignación</span><span>Marca</span><span>Submarca</span><span>Año</span><span>N. Serie</span><span>Estatus</span>
+        <span>Caso</span><span>Asignación</span><span>Nombre de la Cuenta</span><span>Marca</span><span>Submarca</span><span>Año</span><span>N. Serie</span><span>Estatus</span><span>AP</span>
       </div>`;
 
     const filas = registros.map(r => {
@@ -857,11 +946,13 @@
         <button type="button" class="fila-cuenta" data-fila="${r.fila}">
           <span class="mono text-[11px] text-[var(--blue)] font-semibold truncate">${r.c3 || 'sin caso'}</span>
           <span class="text-[12px] text-[var(--text)] truncate">${r.c5 || '—'}</span>
+          <span class="text-[12px] text-[var(--text)] truncate">${r.c8 || '—'}</span>
           <span class="text-[12px] text-[var(--text)] truncate">${r.c13 || '—'}</span>
           <span class="text-[12px] text-[var(--text)] truncate">${r.c14 || '—'}</span>
           <span class="mono text-[11px] text-[var(--muted)]">${r.c15 || '—'}</span>
           <span class="mono text-[11px] text-[var(--text)] truncate">${r.c16 || '—'}</span>
           <span class="mono text-[10px] font-semibold" style="color:${color}">${r.c25 || 'Sin estatus'}</span>
+          <span class="mono text-[11px] text-[var(--muted)] truncate">${r.c42 || '—'}</span>
         </button>`;
     }).join('');
 
@@ -1105,6 +1196,141 @@
 
   // Inicia con 1 unidad por defecto
   ctcAgregarUnidad();
+
+  // ==================================================================
+  // ===== MÓDULO DIRECTORIO (independiente, prefijo dir-) =====
+  // ==================================================================
+  let dbContactosDirectorio = [];
+  let dirFilaEnEdicion = null;
+
+  async function dirCargarContactos(){
+    try{
+      const response = await fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'listarDirectorio' }) });
+      const data = await response.json();
+      if(data.ok){
+        dbContactosDirectorio = data.contactos || [];
+        dirRenderTabla();
+      }
+    } catch(e){
+      console.error('No se pudo cargar el directorio:', e);
+    }
+  }
+
+  function dirRenderTabla(){
+    const tbody = document.getElementById('dir-tabla-body');
+    const query = (document.getElementById('dir-search').value || '').toLowerCase().trim();
+    tbody.innerHTML = '';
+
+    const filtrados = dbContactosDirectorio.filter(c => {
+      if(!query) return true;
+      return (c.nombre||'').toLowerCase().includes(query)
+          || (c.puesto||'').toLowerCase().includes(query)
+          || (c.cliente||'').toLowerCase().includes(query);
+    });
+
+    if(filtrados.length === 0){
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;" class="mono text-[11px] text-[var(--muted)]">Sin contactos que coincidan</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtrados.map(c => `
+      <tr>
+        <td class="font-semibold">${c.nombre || ''}</td>
+        <td>${c.telefono || ''}</td>
+        <td>${c.correo || ''}</td>
+        <td><span class="dir-chip">${c.cliente || '—'}</span></td>
+        <td style="color:var(--muted)">${c.puesto || ''}</td>
+        <td style="text-align:right"><button type="button" class="dir-btn-edit" data-fila="${c.fila}">Editar</button></td>
+      </tr>`).join('');
+
+    tbody.querySelectorAll('[data-fila]').forEach(btn=>{
+      btn.addEventListener('click', () => dirCargarParaEditar(parseInt(btn.dataset.fila)));
+    });
+  }
+
+  document.getElementById('dir-search').addEventListener('input', dirRenderTabla);
+
+  function dirCargarParaEditar(fila){
+    const contacto = dbContactosDirectorio.find(c => c.fila === fila);
+    if(!contacto) return;
+
+    dirFilaEnEdicion = fila;
+    document.getElementById('dir-form-titulo').textContent = '✏️ Editando: ' + contacto.nombre;
+    document.getElementById('dir-nombre').value = contacto.nombre || '';
+    document.getElementById('dir-telefono').value = contacto.telefono || '';
+    document.getElementById('dir-correo').value = contacto.correo || '';
+    document.getElementById('dir-puesto').value = contacto.puesto || '';
+    document.getElementById('dir-cliente').value = contacto.cliente || '';
+    document.getElementById('dir-btn-guardar').textContent = 'Confirmar cambios';
+    document.getElementById('dir-btn-cancelar').classList.remove('hidden');
+    mostrarSegmento('seg-directorio');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function dirResetForm(){
+    dirFilaEnEdicion = null;
+    document.getElementById('dir-form-titulo').textContent = '👤 Alta rápida de contacto';
+    document.getElementById('dir-nombre').value = '';
+    document.getElementById('dir-telefono').value = '';
+    document.getElementById('dir-correo').value = '';
+    document.getElementById('dir-puesto').value = '';
+    document.getElementById('dir-cliente').value = '';
+    document.getElementById('dir-btn-guardar').textContent = 'Guardar en el Directorio';
+    document.getElementById('dir-btn-cancelar').classList.add('hidden');
+    document.getElementById('dir-estado').textContent = '';
+  }
+
+  document.getElementById('dir-btn-cancelar').addEventListener('click', dirResetForm);
+
+  document.getElementById('dir-btn-guardar').addEventListener('click', async () => {
+    const nombre = document.getElementById('dir-nombre').value.trim();
+    const cliente = document.getElementById('dir-cliente').value.trim();
+    const estado = document.getElementById('dir-estado');
+
+    if(!nombre || !cliente){
+      estado.textContent = 'El nombre y el cliente corporativo son obligatorios.';
+      estado.style.color = 'var(--danger)';
+      return;
+    }
+
+    const payload = {
+      accion: 'guardarContacto',
+      data: {
+        nombre,
+        telefono: document.getElementById('dir-telefono').value.trim(),
+        correo: document.getElementById('dir-correo').value.trim(),
+        puesto: document.getElementById('dir-puesto').value.trim(),
+        cliente
+      }
+    };
+    if(dirFilaEnEdicion) payload.fila = dirFilaEnEdicion;
+
+    const btn = document.getElementById('dir-btn-guardar');
+    btn.disabled = true;
+    estado.textContent = 'Guardando…';
+    estado.style.color = 'var(--muted)';
+
+    try{
+      const response = await fetch(ENDPOINT, { method:'POST', body: JSON.stringify(payload) });
+      const data = await response.json();
+      if(data.ok){
+        estado.textContent = '✓ Guardado correctamente';
+        estado.style.color = 'var(--green)';
+        dirResetForm();
+        await dirCargarContactos();
+      } else {
+        estado.textContent = data.error || 'No se pudo guardar el contacto.';
+        estado.style.color = 'var(--danger)';
+      }
+    } catch(e){
+      estado.textContent = 'Error de conexión: ' + e;
+      estado.style.color = 'var(--danger)';
+    }
+    btn.disabled = false;
+  });
+
+  // Carga inicial del directorio (misma hoja de cálculo, pestaña "Directorio")
+  dirCargarContactos();
 </script>
 </body>
 </html>
