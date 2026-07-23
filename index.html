@@ -289,6 +289,18 @@
     padding:5px 11px; border-radius:8px; font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap;
   }
   #seg-directorio .dir-btn-edit:hover{ border-color:#7C5CF6; color:#7C5CF6; }
+
+  /* ===== MÓDULO CONTROL DE CUENTAS (scope propio, prefijo cc-) ===== */
+  .cc-step-panel{ display:none; }
+  .cc-step-panel.active{ display:block; animation:fadeUp .35s ease; }
+  .cc-step-node.done .step-num{ background:var(--tag-color); border-color:var(--tag-color); color:#FFFFFF; }
+  .cc-step-node.active .step-num{ border-color:var(--tag-color); color:var(--tag-color); box-shadow:0 0 0 4px color-mix(in srgb, var(--tag-color) 16%, transparent); }
+  .rag-badge{ font-size:10px; font-weight:700; padding:3px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.02em; }
+  .rag-verde{ background:#DCFCE7; color:#15803D; border:1px solid #86EFAC; }
+  .rag-ambar{ background:#FEF3C7; color:#B45309; border:1px solid #FCD34D; }
+  .rag-rojo{ background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; }
+  .rag-baja{ background:#E2E8F0; color:#475569; border:1px solid #CBD5E1; }
+  .rag-sin{ background:#F1F5F9; color:#94A3B8; border:1px solid #E2E8F0; }
 </style>
 </head>
 <body class="min-h-screen pb-28">
@@ -318,7 +330,7 @@
   <main class="max-w-6xl mx-auto px-5 pt-8">
 
     <!-- ===== TABS DE SEGMENTOS ===== -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-7">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 mb-7">
       <button type="button" class="tab-btn tab-active" data-tab="seg-buscar" style="--tag-color:var(--blue)">
         <span class="tab-num">01</span>
         <div>
@@ -352,6 +364,13 @@
         <div>
           <p class="text-[13px] font-semibold">Directorio</p>
           <p class="text-[11px] text-[var(--muted)]">Agenda de contactos por cuenta</p>
+        </div>
+      </button>
+      <button type="button" class="tab-btn" data-tab="seg-cuentas-control" style="--tag-color:#0E9488">
+        <span class="tab-num">06</span>
+        <div>
+          <p class="text-[13px] font-semibold">Control de Cuentas</p>
+          <p class="text-[11px] text-[var(--muted)]">RAG, UIS, renovación y contacto</p>
         </div>
       </button>
     </div>
@@ -572,6 +591,53 @@
         </div>
 
       </div>
+    </section>
+
+    <!-- ===== SEGMENTO 6 · CONTROL DE CUENTAS ===== -->
+    <section id="seg-cuentas-control" class="segment-panel">
+
+      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
+        <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-3">Buscar cuenta por Razón Social o No. Cliente</p>
+        <input type="text" id="cc-buscar" placeholder="Escribe al menos 4 caracteres…" class="field-input" style="--tag-color:#0E9488">
+        <p class="text-[11px] text-[var(--muted)] mt-2">Se muestran hasta 5 coincidencias con su semáforo RAG.</p>
+        <div id="cc-resultados" class="hidden mt-3 rounded-xl border border-[var(--line)] overflow-hidden bg-white"></div>
+      </div>
+
+      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase">Estado de la cuenta</p>
+          <button type="button" id="cc-btn-nueva" class="hidden text-[11px] mono font-semibold hover:underline" style="color:#0E9488">+ Nueva cuenta</button>
+        </div>
+        <div id="cc-banner-edicion" class="hidden mt-2 text-[12px] px-3 py-2 rounded-lg" style="background:color-mix(in srgb, #0E9488 10%, white); border:1px solid color-mix(in srgb, #0E9488 35%, transparent); color:#0E9488">
+          ✎ Editando una cuenta existente — los cambios sobrescribirán la fila original al guardar.
+        </div>
+        <p id="cc-sin-edicion-msg" class="text-[11px] text-[var(--muted)] mt-2">Capturando una cuenta nueva. Usa el buscador de arriba si quieres editar una existente.</p>
+      </div>
+
+      <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase">Progreso de captura</p>
+          <p class="mono text-[11px]" style="color:#0E9488" id="cc-progreso-total">0 / 49 campos</p>
+        </div>
+        <div class="w-full h-1 bg-[var(--line-soft)] rounded-full overflow-hidden mb-6">
+          <div id="cc-barra-total" class="step-line-fill h-full" style="background:linear-gradient(to right, #0E9488, var(--blue)); width:0%"></div>
+        </div>
+        <div id="cc-stepper" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      </div>
+
+      <form id="cc-form">
+        <div id="cc-steps-container"></div>
+      </form>
+
+      <div class="flex items-center justify-between gap-3 mt-6 mb-4">
+        <button type="button" id="cc-btn-prev" class="btn-ghost text-[13px] font-medium px-4 py-2.5 rounded-lg transition">← Anterior</button>
+        <div class="flex items-center gap-3">
+          <span id="cc-estado-envio" class="mono text-[11px] text-[var(--muted)]"></span>
+          <button type="button" id="cc-btn-next" class="btn-ghost text-[13px] font-medium px-4 py-2.5 rounded-lg transition">Siguiente →</button>
+          <button type="button" id="cc-btn-guardar" class="text-[13px] font-semibold px-5 py-2.5 rounded-lg transition" style="background:#0E9488; color:#fff; box-shadow:0 4px 14px rgba(14,148,136,0.25)">Guardar Cuenta</button>
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -1331,6 +1397,323 @@
 
   // Carga inicial del directorio (misma hoja de cálculo, pestaña "Directorio")
   dirCargarContactos();
+
+  // ==================================================================
+  // ===== MÓDULO CONTROL DE CUENTAS (independiente, prefijo cc-) =====
+  // ==================================================================
+  const ccOpt = {
+    ejecutivo: ["BCARTE","KPOBLANO","AKROMERO","NTRUJILLO","FDIAZ","BROSAS","JCADENA","HLOPEZ","NVEGA","GCORZO","SRIVERO","RLIRA","ECORTEZ"],
+    vendedor: ["JDOMINGUEZ","FVELASQUEZ","KPOBLANO","MSALDAÑA","IBRAVO","GGONZALEZ","JCARLOS","GCORZO","HSANCHEZ","BCARTE","HLOPEZ"],
+    tier: ["TIER 1","TIER 2","TIER 3","TIER 4"],
+    rag: ["Verde","Ambar","Rojo","Baja"],
+    contratos: ["Sin contrato","Contrato Vigente","Contrato vencido","En proceso de Renovación"],
+    aumentoPrecio: ["Mail","Whatsapp","Personal","Llamada","No Aplica"],
+    estatusRenov: ["Renewed","Remaining","Lost","In progress","At Risk"],
+    tipoContacto: ["Pendiente","Llamada","Meet","Visita","QBR","Otro"],
+    areaOportunidad: ["Afectacion Telcel","Cliente","Operaciones","Customer","IT","Finanzas","CAE"]
+  };
+
+  const ccConfig = [
+    {n:1,  l:"1 No"},
+    {n:2,  l:"2 Ejecutivo", type:"datalist", opt:ccOpt.ejecutivo},
+    {n:3,  l:"3 Vendedor", type:"datalist", opt:ccOpt.vendedor},
+    {n:4,  l:"4 Grupo"},
+    {n:5,  l:"5 No Cliente"},
+    {n:6,  l:"6 Razón Social"},
+    {n:7,  l:"7 UIS Abr 2025", type:"number"}, {n:8,  l:"8 UIS Sept 2025", type:"number"},
+    {n:9,  l:"9 UIS Oct 2025", type:"number"}, {n:10, l:"10 UIS Nov 2025", type:"number"},
+    {n:11, l:"11 UIS Dic 2025", type:"number"}, {n:12, l:"12 UIS Ene 2026", type:"number"},
+    {n:13, l:"13 UIS Feb 2026", type:"number"}, {n:14, l:"14 UIS Mar 2026", type:"number"},
+    {n:15, l:"15 UIS Abr 2026", type:"number"}, {n:16, l:"16 UIS May 2026", type:"number"},
+    {n:17, l:"17 UIS Jun 2026", type:"number"}, {n:18, l:"18 UIS Jul 2026", type:"number"},
+    {n:19, l:"19 Crecimiento (%)", placeholder:"Ej. 3%"},
+    {n:20, l:"20 TIER UIS", type:"select", opt:ccOpt.tier},
+    {n:21, l:"21 TIER MRR", type:"select", opt:ccOpt.tier},
+    {n:22, l:"22 ARR", type:"number", placeholder:"Monto anual"},
+    {n:23, l:"23 MRR", type:"number", placeholder:"Monto mensual"},
+    {n:24, l:"24 ARPU", type:"number", placeholder:"Ingreso promedio por unidad"},
+    {n:25, l:"25 RAG", type:"select", opt:ccOpt.rag},
+    {n:26, l:"26 Contratos", type:"select", opt:ccOpt.contratos},
+    {n:27, l:"27 Aumento de precio 2026", type:"select", opt:ccOpt.aumentoPrecio},
+    {n:28, l:"28 Fecha de renovación", type:"date"},
+    {n:29, l:"29 Día", type:"number"}, {n:30, l:"30 Mes", type:"number"}, {n:31, l:"31 Año", type:"number"},
+    {n:32, l:"32 Estatus Renov", type:"select", opt:ccOpt.estatusRenov},
+    {n:33, l:"33 Nombre del Contacto"},
+    {n:34, l:"34 Teléfono de contacto"},
+    {n:35, l:"35 Correo Principal", type:"email"},
+    {n:36, l:"36 Correo secundario", type:"email"},
+    {n:37, l:"37 Correo opcional", type:"email"},
+    {n:38, l:"38 Accesos a Plataforma"},
+    {n:39, l:"39 Uis sin transmisión", type:"number"},
+    {n:40, l:"40 Uis sin transmisión (%)", placeholder:"Ej. 8%"},
+    {n:41, l:"41 Contacto", type:"select", opt:ccOpt.tipoContacto},
+    {n:42, l:"42 Área Oportunidad 1", type:"select", opt:ccOpt.areaOportunidad},
+    {n:43, l:"43 Comentarios/Oportunidad 1", type:"textarea"},
+    {n:44, l:"44 Área oportunidad 2", type:"select", opt:ccOpt.areaOportunidad},
+    {n:45, l:"45 Comentarios/Oportunidad 2", type:"textarea"},
+    {n:46, l:"46 Área oportunidad 3", type:"select", opt:ccOpt.areaOportunidad},
+    {n:47, l:"47 Comentarios/Oportunidad 3", type:"textarea"},
+    {n:48, l:"48 Cliente con cámaras Powerfleet", type:"textarea"},
+    {n:49, l:"49 Comentarios General", type:"textarea"}
+  ];
+
+  const CC_STEPS = [
+    {id:1, from:1,  to:6,  color:'#0E9488', code:'01', title:'Identificación y Ejecutivo', sub:'Cuenta, grupo y responsables'},
+    {id:2, from:7,  to:19, color:'#485FDF', code:'02', title:'UIS Mensuales',               sub:'Histórico de unidades y crecimiento'},
+    {id:3, from:20, to:25, color:'#F37224', code:'03', title:'Financiero y Clasificación',   sub:'TIER, ARR, MRR, ARPU y RAG'},
+    {id:4, from:26, to:32, color:'#00644E', code:'04', title:'Contrato y Renovación',        sub:'Vigencia, aumento de precio y estatus'},
+    {id:5, from:33, to:38, color:'#7C5CF6', code:'05', title:'Contacto del Cliente',         sub:'Datos de la persona de contacto'},
+    {id:6, from:39, to:49, color:'#B45309', code:'06', title:'Transmisión y Oportunidades',  sub:'Salud del servicio y áreas de mejora'}
+  ];
+
+  function ccCrearInput(i, color){
+    const c = ccConfig.find(x => x.n === i) || {n:i, l:i+" - Campo "+i};
+    const tag = String(i).padStart(2,'0');
+    let control = '';
+
+    if(c.type === "select"){
+      control = `<select id="cc${i}" class="field-input" style="--tag-color:${color}">
+        <option value="">Seleccionar…</option>
+        ${c.opt.map(o=>`<option>${o}</option>`).join('')}
+      </select>`;
+    } else if(c.type === "datalist"){
+      control = `<input type="text" id="cc${i}" list="cc-dl-${i}" placeholder=" " class="field-input" style="--tag-color:${color}">
+        <datalist id="cc-dl-${i}">${c.opt.map(o=>`<option value="${o}">`).join('')}</datalist>`;
+    } else if(c.type === "textarea"){
+      control = `<textarea id="cc${i}" rows="2" placeholder=" " class="field-input" style="--tag-color:${color}"></textarea>`;
+    } else {
+      control = `<input type="${c.type || 'text'}" id="cc${i}" placeholder="${c.placeholder || ' '}" class="field-input" style="--tag-color:${color}">`;
+    }
+
+    return `<div class="field-wrap">
+      <label><span class="field-tag" style="--tag-color:${color}">C${tag}</span>${limpiarLabel(c.l)}</label>
+      ${control}
+    </div>`;
+  }
+
+  function ccBuildStepPanel(step){
+    const fields = [];
+    for(let i = step.from; i <= step.to; i++) fields.push(ccCrearInput(i, step.color));
+    return `
+      <section class="cc-step-panel ${step.id===1?'active':''}" data-step="${step.id}">
+        <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="mono text-[11px] px-2.5 py-1 rounded-md" style="color:${step.color}; background:color-mix(in srgb, ${step.color} 12%, white); border:1px solid color-mix(in srgb, ${step.color} 40%, transparent)">${step.code}</span>
+            <div>
+              <h2 class="text-[15px] font-semibold text-[var(--text)]">${step.title}</h2>
+              <p class="text-[11px] text-[var(--muted)]">${step.sub} · campos ${step.from}–${step.to}</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            ${fields.join('')}
+          </div>
+        </div>
+      </section>`;
+  }
+
+  document.getElementById('cc-steps-container').innerHTML = CC_STEPS.map(ccBuildStepPanel).join('');
+
+  let ccCurrent = 1;
+
+  function ccBuildStepper(){
+    document.getElementById('cc-stepper').innerHTML = CC_STEPS.map((s) => `
+      <button type="button" class="cc-step-node ${s.id===ccCurrent?'active':''}" data-ccgoto="${s.id}" style="--tag-color:${s.color}">
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-[var(--line)] transition w-full text-left bg-white">
+          <span class="step-num mono text-[12px] font-semibold w-7 h-7 flex items-center justify-center rounded-full border border-[var(--line)] text-[var(--muted)]">${s.code}</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-[12px] font-medium text-[var(--text)] truncate">${s.title}</p>
+            <p class="mono text-[10px] text-[var(--muted)]" id="cc-contador-${s.id}">0 / ${s.to - s.from + 1}</p>
+          </div>
+        </div>
+      </button>`).join('');
+
+    document.querySelectorAll('[data-ccgoto]').forEach(btn=>{
+      btn.addEventListener('click', () => ccIrAPaso(parseInt(btn.dataset.ccgoto)));
+    });
+  }
+  ccBuildStepper();
+
+  function ccIrAPaso(id){
+    ccCurrent = id;
+    document.querySelectorAll('.cc-step-panel').forEach(p => p.classList.toggle('active', parseInt(p.dataset.step) === id));
+    document.querySelectorAll('.cc-step-node').forEach(n => n.classList.toggle('active', parseInt(n.dataset.ccgoto) === id));
+    document.getElementById('cc-btn-prev').disabled = id === CC_STEPS[0].id;
+    document.getElementById('cc-btn-prev').style.opacity = id === CC_STEPS[0].id ? .4 : 1;
+    document.getElementById('cc-btn-next').textContent = id === CC_STEPS[CC_STEPS.length-1].id ? 'Ir al inicio ↺' : 'Siguiente →';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.getElementById('cc-btn-prev').addEventListener('click', () => {
+    const idx = CC_STEPS.findIndex(s=>s.id===ccCurrent);
+    if(idx > 0) ccIrAPaso(CC_STEPS[idx-1].id);
+  });
+  document.getElementById('cc-btn-next').addEventListener('click', () => {
+    const idx = CC_STEPS.findIndex(s=>s.id===ccCurrent);
+    if(idx < CC_STEPS.length-1) ccIrAPaso(CC_STEPS[idx+1].id); else ccIrAPaso(CC_STEPS[0].id);
+  });
+
+  function ccActualizarProgreso(){
+    let totalLlenos = 0;
+    CC_STEPS.forEach(step=>{
+      let llenos = 0;
+      for(let i = step.from; i <= step.to; i++){
+        const el = document.getElementById('cc'+i);
+        if(el && el.value.trim() !== '') llenos++;
+      }
+      totalLlenos += llenos;
+      const contador = document.getElementById('cc-contador-'+step.id);
+      if(contador) contador.textContent = `${llenos} / ${step.to - step.from + 1}`;
+      const node = document.querySelector(`[data-ccgoto="${step.id}"] .step-num`);
+      if(node) node.parentElement.parentElement.classList.toggle('done', llenos === (step.to - step.from + 1));
+    });
+    document.getElementById('cc-progreso-total').textContent = `${totalLlenos} / 49 campos`;
+    document.getElementById('cc-barra-total').style.width = ((totalLlenos/49)*100).toFixed(1) + '%';
+  }
+
+  document.getElementById('cc-steps-container').addEventListener('input', ccActualizarProgreso);
+  document.getElementById('cc-steps-container').addEventListener('change', ccActualizarProgreso);
+  ccActualizarProgreso();
+  ccIrAPaso(1);
+
+  // ===== Modo edición =====
+  let ccModoEdicion = false;
+  let ccFilaActual = null;
+
+  function ccActivarModoEdicion(fila){
+    ccModoEdicion = true;
+    ccFilaActual = fila;
+    document.getElementById('cc-banner-edicion').classList.remove('hidden');
+    document.getElementById('cc-sin-edicion-msg').classList.add('hidden');
+    document.getElementById('cc-btn-nueva').classList.remove('hidden');
+    document.getElementById('cc-btn-guardar').textContent = 'Actualizar Cuenta';
+  }
+
+  function ccSalirModoEdicion(){
+    ccModoEdicion = false;
+    ccFilaActual = null;
+    document.getElementById('cc-banner-edicion').classList.add('hidden');
+    document.getElementById('cc-sin-edicion-msg').classList.remove('hidden');
+    document.getElementById('cc-btn-nueva').classList.add('hidden');
+    document.getElementById('cc-btn-guardar').textContent = 'Guardar Cuenta';
+    document.getElementById('cc-form').reset();
+    ccActualizarProgreso();
+    ccIrAPaso(1);
+  }
+
+  document.getElementById('cc-btn-nueva').addEventListener('click', ccSalirModoEdicion);
+
+  // ===== Búsqueda en vivo por Razón Social / No. Cliente =====
+  let ccDebounce;
+  const ccInputBuscar = document.getElementById('cc-buscar');
+  const ccResultados = document.getElementById('cc-resultados');
+
+  ccInputBuscar.addEventListener('input', () => {
+    clearTimeout(ccDebounce);
+    const valor = ccInputBuscar.value.trim();
+    if(valor.length < 4){
+      ccResultados.classList.add('hidden');
+      ccResultados.innerHTML = '';
+      return;
+    }
+    ccDebounce = setTimeout(() => ccEjecutarBusqueda(valor), 350);
+  });
+
+  function ccRagClase(valor){
+    const v = (valor || '').toLowerCase();
+    if(v === 'verde') return 'rag-verde';
+    if(v === 'ambar') return 'rag-ambar';
+    if(v === 'rojo') return 'rag-rojo';
+    if(v === 'baja') return 'rag-baja';
+    return 'rag-sin';
+  }
+
+  async function ccEjecutarBusqueda(valor){
+    ccResultados.classList.remove('hidden');
+    ccResultados.innerHTML = '<p class="mono text-[11px] text-[var(--muted)] px-3 py-2.5">Buscando…</p>';
+    try{
+      const response = await fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'buscarCuentaAproximado', valor }) });
+      const data = await response.json();
+
+      if(data.ok && data.resultados.length){
+        ccResultados.innerHTML = data.resultados.map(r => `
+          <button type="button" class="resultado-item" data-fila="${r.fila}">
+            <span class="flex items-center justify-between">
+              <span class="text-[12px] text-[var(--text)] font-semibold">${r.cc6 || 'Sin razón social'}</span>
+              <span class="rag-badge ${ccRagClase(r.cc25)}">${r.cc25 || 'Sin RAG'}</span>
+            </span>
+            <span class="mono text-[10px] text-[var(--muted)]">No ${r.cc1 || '—'} · Cliente ${r.cc5 || '—'} · Ejecutivo ${r.cc2 || '—'}</span>
+          </button>`).join('');
+
+        ccResultados.querySelectorAll('[data-fila]').forEach(btn=>{
+          btn.addEventListener('click', () => ccCargarPorFila(parseInt(btn.dataset.fila)));
+        });
+      } else {
+        ccResultados.innerHTML = `<p class="mono text-[11px] px-3 py-2.5" style="color:var(--danger)">${data.error || 'Sin coincidencias'}</p>`;
+      }
+    } catch(e){
+      ccResultados.innerHTML = `<p class="mono text-[11px] px-3 py-2.5" style="color:var(--danger)">Error de búsqueda: ${e}</p>`;
+    }
+  }
+
+  async function ccCargarPorFila(fila){
+    try{
+      const response = await fetch(ENDPOINT, { method:'POST', body: JSON.stringify({ accion:'cargarFilaCuenta', fila }) });
+      const data = await response.json();
+      if(data.ok){
+        for(let i = 1; i <= 49; i++){
+          const el = document.getElementById('cc' + i);
+          if(el) el.value = data.datos['cc' + i] || '';
+        }
+        ccActualizarProgreso();
+        ccActivarModoEdicion(data.fila);
+        ccIrAPaso(1);
+      } else {
+        alert(data.error || 'No se pudo cargar la cuenta.');
+      }
+    } catch(e){
+      alert('Error al cargar la cuenta (revisa consola F12): ' + e);
+    }
+  }
+
+  // ===== Guardar (crear o actualizar cuenta) =====
+  document.getElementById('cc-btn-guardar').addEventListener('click', async () => {
+    const btn = document.getElementById('cc-btn-guardar');
+    const estado = document.getElementById('cc-estado-envio');
+    btn.textContent = "Guardando…";
+    btn.disabled = true;
+    estado.textContent = "";
+
+    const p = {};
+    for(let i = 1; i <= 49; i++){
+      const el = document.getElementById('cc' + i);
+      p['cc' + i] = el ? el.value : "";
+    }
+    p.accion = ccModoEdicion ? 'actualizarCuenta' : 'crearCuenta';
+    if(ccModoEdicion) p.fila = ccFilaActual;
+
+    try {
+      const response = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(p) });
+      const data = await response.json();
+      if(data.ok){
+        estado.textContent = ccModoEdicion ? "✓ Actualizado" : "✓ Guardado";
+        estado.style.color = 'var(--green)';
+        if(!ccModoEdicion){
+          document.getElementById('cc-form').reset();
+          ccActualizarProgreso();
+          ccIrAPaso(1);
+        }
+      } else {
+        estado.textContent = data.error || 'No se pudo guardar la cuenta.';
+        estado.style.color = 'var(--danger)';
+      }
+    } catch(e){
+      estado.textContent = "✗ Error de envío";
+      estado.style.color = 'var(--danger)';
+      alert('Error técnico (revisa consola F12): ' + e);
+    }
+    btn.textContent = ccModoEdicion ? 'Actualizar Cuenta' : "Guardar Cuenta";
+    btn.disabled = false;
+  });
 </script>
 </body>
 </html>
