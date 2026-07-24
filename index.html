@@ -26,6 +26,7 @@
     --orange: #F37224;
     --yellow: #FFD561;
     --danger: #D64545;
+    --sidebar-w: 250px;
   }
   *{ box-sizing:border-box; }
   html,body{ background:var(--bg); }
@@ -121,27 +122,6 @@
   /* ===== Segmentos (nivel superior) ===== */
   .segment-panel{ display:none; }
   .segment-panel.active{ display:block; animation:fadeUp .35s ease; }
-
-  .tab-btn{
-    display:flex; align-items:center; gap:10px;
-    padding:12px 16px; border-radius:12px;
-    border:1px solid var(--line); background:#FFFFFF;
-    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
-    text-align:left; flex:1;
-  }
-  .tab-btn:hover{ border-color:#B7CBC3; }
-  .tab-btn.tab-active{
-    border-color:var(--tag-color);
-    background:color-mix(in srgb, var(--tag-color) 6%, white);
-    box-shadow:0 0 0 3px color-mix(in srgb, var(--tag-color) 14%, transparent);
-  }
-  .tab-num{
-    width:30px; height:30px; border-radius:999px; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    border:1px solid var(--line); color:var(--muted);
-    font-family:'JetBrains Mono', monospace; font-size:12px; font-weight:600;
-  }
-  .tab-btn.tab-active .tab-num{ background:var(--tag-color); border-color:var(--tag-color); color:#fff; }
 
   /* ===== Resultados de búsqueda (dropdown) ===== */
   .resultado-item{
@@ -301,81 +281,161 @@
   .rag-rojo{ background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5; }
   .rag-baja{ background:#E2E8F0; color:#475569; border:1px solid #CBD5E1; }
   .rag-sin{ background:#F1F5F9; color:#94A3B8; border:1px solid #E2E8F0; }
+
+  /* ===== MODO OSCURO ===== */
+  html[data-theme="dark"]{
+    --bg: #0B1210;
+    --panel: #101917;
+    --panel-2: #16211E;
+    --line: #223330;
+    --line-soft: #1C2926;
+    --text: #E7F3EF;
+    --muted: #8CA39B;
+  }
+  html[data-theme="dark"] body{
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(0,100,78,0.12), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(72,95,223,0.10), transparent 60%);
+  }
+  html[data-theme="dark"] .bg-white{ background-color:var(--panel) !important; }
+  html[data-theme="dark"] .field-input:focus{ background:var(--panel-2); }
+  html[data-theme="dark"] .field-input:not(:placeholder-shown):not(:focus){ background:var(--panel-2); }
+  html[data-theme="dark"] select.field-input{ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238CA39B'/%3E%3C/svg%3E"); }
+  html[data-theme="dark"] .kpi-card{ background:var(--panel); }
+  html[data-theme="dark"] #seg-constancia .ctc-preview{ background:#fff; color:#1b1b1b; } /* el documento siempre se ve como papel */
+  html[data-theme="dark"] .btn-ghost{ background:var(--panel); }
+
+  /* ===== LAYOUT: SIDEBAR + TOPBAR ===== */
+  .app-shell{ display:flex; min-height:100vh; }
+
+  .sidebar{
+    width:var(--sidebar-w); flex-shrink:0; background:var(--panel); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow-y:auto;
+    transition:width .2s ease;
+  }
+  .sidebar-brand{ display:flex; align-items:center; gap:10px; padding:18px 16px; border-bottom:1px solid var(--line); flex-shrink:0; }
+  .sidebar-logo{ width:34px; height:34px; border-radius:9px; background:var(--green); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-family:'JetBrains Mono', monospace; font-size:12px; flex-shrink:0; }
+  .sidebar-brand-text{ font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; color:var(--text); }
+  .sidebar-collapse-btn{ margin-left:auto; width:26px; height:26px; border-radius:8px; border:1px solid var(--line); background:var(--panel-2); color:var(--muted); flex-shrink:0; font-size:13px; }
+  .sidebar-collapse-btn:hover{ color:var(--text); }
+
+  .sidebar-nav{ padding:12px; display:flex; flex-direction:column; gap:4px; flex:1; overflow-y:auto; }
+  .nav-item{
+    display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px;
+    border:1px solid transparent; background:transparent; text-align:left; color:var(--muted);
+    transition:background .15s ease, color .15s ease; width:100%;
+  }
+  .nav-item:hover{ background:var(--panel-2); color:var(--text); }
+  .nav-item.active{
+    background:color-mix(in srgb, var(--tag-color) 12%, transparent);
+    color:var(--tag-color); border-color:color-mix(in srgb, var(--tag-color) 35%, transparent); font-weight:600;
+  }
+  .nav-item-icon{ width:20px; text-align:center; flex-shrink:0; font-size:15px; }
+  .nav-item-label{ font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .sidebar-footer{ padding:12px; border-top:1px solid var(--line); flex-shrink:0; }
+  .sidebar-footer-link{ display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:10px; color:var(--muted); font-size:12.5px; transition:background .15s ease, color .15s ease; }
+  .sidebar-footer-link:hover{ background:var(--panel-2); color:var(--text); }
+
+  .sidebar.collapsed{ width:76px; }
+  .sidebar.collapsed .sidebar-brand-text,
+  .sidebar.collapsed .nav-item-label,
+  .sidebar.collapsed .sidebar-footer-link .nav-item-label{ display:none; }
+  .sidebar.collapsed .sidebar-collapse-btn{ transform:rotate(180deg); }
+  .sidebar.collapsed .nav-item, .sidebar.collapsed .sidebar-footer-link{ justify-content:center; }
+
+  .app-main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .topbar{
+    position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--line);
+    padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; backdrop-filter:blur(6px);
+  }
+  .topbar-title{ font-family:'JetBrains Mono', monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); }
+  .topbar-breadcrumb{ font-size:15px; font-weight:600; color:var(--text); margin-top:2px; }
+  .topbar-actions{ display:flex; align-items:center; gap:10px; }
+  .theme-toggle-btn{ width:36px; height:36px; border-radius:10px; border:1px solid var(--line); background:var(--panel); display:flex; align-items:center; justify-content:center; font-size:15px; cursor:pointer; }
+  .theme-toggle-btn:hover{ border-color:#B7CBC3; }
+
+  .content-area{ padding:24px 24px 120px; max-width:1200px; width:100%; }
+
+  @media (max-width: 860px){
+    .app-shell{ flex-direction:column; }
+    .sidebar{ width:100%; height:auto; position:relative; flex-direction:row; align-items:center; }
+    .sidebar-brand{ border-bottom:none; border-right:1px solid var(--line); flex-shrink:0; }
+    .sidebar-nav{ flex-direction:row; overflow-x:auto; padding:10px; }
+    .nav-item{ flex-shrink:0; }
+    .sidebar-footer{ display:none; }
+    .sidebar-collapse-btn{ display:none; }
+    #action-bar{ left:0 !important; }
+  }
 </style>
 </head>
 <body class="min-h-screen pb-28">
 
   <!-- ===== HEADER / CONSOLE BAR ===== -->
-  <header class="console-bg border-b border-[var(--line)] sticky top-0 z-40 backdrop-blur bg-[var(--bg)]/90">
-    <div class="max-w-6xl mx-auto px-5 py-4 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-[var(--green)] flex items-center justify-center">
-          <span class="mono text-white text-sm font-bold">PF</span>
-        </div>
-        <div>
-          <h1 class="mono text-[13px] tracking-widest text-[var(--text)] font-semibold uppercase">Powerfleet · Control de Flota</h1>
-          <p class="text-[11px] text-[var(--muted)] mt-0.5">Registro de unidades GPS — AXA / MAS SEGUROS</p>
-        </div>
+  <div class="app-shell">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">PF</div>
+        <span class="sidebar-brand-text">Powerfleet</span>
+        <button type="button" id="sidebar-toggle" class="sidebar-collapse-btn" title="Colapsar menú">‹</button>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="hidden sm:flex items-center gap-2 mono text-[10px] text-[var(--muted)] px-3 py-1.5 rounded-full border border-[var(--line)] bg-white">
-          <span class="signal-dot"></span> EN LÍNEA
-        </div>
-        <a href="https://docs.google.com/spreadsheets/d/1oQiSanSmO-04zZVoZcrNm_xFcS_IRnq4hmWhJX4Wru0/edit" target="_blank"
-           class="btn-ghost text-[12px] font-medium px-3.5 py-2 rounded-lg transition">Ver Excel ↗</a>
+
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-tab="seg-buscar" data-title="Buscar por N° de Serie" style="--tag-color:var(--blue)">
+          <span class="nav-item-icon">🔍</span>
+          <span class="nav-item-label">01 · Buscar Serie</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="seg-registro" data-title="Nuevo / Editar Registro" style="--tag-color:var(--green)">
+          <span class="nav-item-icon">📋</span>
+          <span class="nav-item-label">02 · Nuevo / Editar</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="seg-cuenta" data-title="Buscar por Cuenta" style="--tag-color:var(--orange)">
+          <span class="nav-item-icon">🏢</span>
+          <span class="nav-item-label">03 · Buscar Cuenta</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="seg-constancia" data-title="Generar Constancia" style="--tag-color:#0c3b2e">
+          <span class="nav-item-icon">📄</span>
+          <span class="nav-item-label">04 · Constancia</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="seg-directorio" data-title="Directorio" style="--tag-color:#7C5CF6">
+          <span class="nav-item-icon">📇</span>
+          <span class="nav-item-label">05 · Directorio</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="seg-cuentas-control" data-title="Control de Cuentas" style="--tag-color:#0E9488">
+          <span class="nav-item-icon">📊</span>
+          <span class="nav-item-label">06 · Control Cuentas</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="https://docs.google.com/spreadsheets/d/1oQiSanSmO-04zZVoZcrNm_xFcS_IRnq4hmWhJX4Wru0/edit" target="_blank" class="sidebar-footer-link">
+          <span class="nav-item-icon">📈</span>
+          <span class="nav-item-label">Ver Excel ↗</span>
+        </a>
       </div>
-    </div>
-  </header>
+    </aside>
 
-  <main class="max-w-6xl mx-auto px-5 pt-8">
+    <!-- ===== CONTENIDO ===== -->
+    <div class="app-main">
 
-    <!-- ===== TABS DE SEGMENTOS ===== -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 mb-7">
-      <button type="button" class="tab-btn tab-active" data-tab="seg-buscar" style="--tag-color:var(--blue)">
-        <span class="tab-num">01</span>
+      <header class="topbar">
         <div>
-          <p class="text-[13px] font-semibold">Buscar por N° de Serie</p>
-          <p class="text-[11px] text-[var(--muted)]">Localiza un registro existente</p>
+          <p class="topbar-title">Powerfleet · Control de Flota</p>
+          <p class="topbar-breadcrumb" id="topbar-breadcrumb">Buscar por N° de Serie</p>
         </div>
-      </button>
-      <button type="button" class="tab-btn" data-tab="seg-registro" style="--tag-color:var(--green)">
-        <span class="tab-num">02</span>
-        <div>
-          <p class="text-[13px] font-semibold">Nuevo / Editar Registro</p>
-          <p class="text-[11px] text-[var(--muted)]">Captura los 64 campos</p>
+        <div class="topbar-actions">
+          <div class="hidden sm:flex items-center gap-2 mono text-[10px] text-[var(--muted)] px-3 py-1.5 rounded-full border border-[var(--line)] bg-white">
+            <span class="signal-dot"></span> EN LÍNEA
+          </div>
+          <button type="button" id="theme-toggle" class="theme-toggle-btn" title="Cambiar a modo oscuro">🌙</button>
         </div>
-      </button>
-      <button type="button" class="tab-btn" data-tab="seg-cuenta" style="--tag-color:var(--orange)">
-        <span class="tab-num">03</span>
-        <div>
-          <p class="text-[13px] font-semibold">Buscar por Cuenta</p>
-          <p class="text-[11px] text-[var(--muted)]">Registros y KPIs por razón social</p>
-        </div>
-      </button>
-      <button type="button" class="tab-btn" data-tab="seg-constancia" style="--tag-color:#0c3b2e">
-        <span class="tab-num">04</span>
-        <div>
-          <p class="text-[13px] font-semibold">Generar Constancia</p>
-          <p class="text-[11px] text-[var(--muted)]">Documento de servicio en PDF</p>
-        </div>
-      </button>
-      <button type="button" class="tab-btn" data-tab="seg-directorio" style="--tag-color:#7C5CF6">
-        <span class="tab-num">05</span>
-        <div>
-          <p class="text-[13px] font-semibold">Directorio</p>
-          <p class="text-[11px] text-[var(--muted)]">Agenda de contactos por cuenta</p>
-        </div>
-      </button>
-      <button type="button" class="tab-btn" data-tab="seg-cuentas-control" style="--tag-color:#0E9488">
-        <span class="tab-num">06</span>
-        <div>
-          <p class="text-[13px] font-semibold">Control de Cuentas</p>
-          <p class="text-[11px] text-[var(--muted)]">RAG, UIS, renovación y contacto</p>
-        </div>
-      </button>
-    </div>
+      </header>
 
-    <!-- ===== SEGMENTO 1 · BUSCAR POR N° DE SERIE ===== -->
+      <main class="content-area">
+
+        <!-- ===== SEGMENTO 1 · BUSCAR POR N° DE SERIE ===== -->
     <section id="seg-buscar" class="segment-panel active">
       <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
         <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase mb-3">Buscar registro por N° de Serie</p>
@@ -640,10 +700,12 @@
 
     </section>
 
-  </main>
+      </main>
+    </div>
+  </div>
 
   <!-- ===== ACTION BAR (fija, solo visible en segmento 02) ===== -->
-  <div id="action-bar" class="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--line)] bg-[var(--bg)]/95 backdrop-blur" style="display:none">
+  <div id="action-bar" class="fixed bottom-0 z-40 border-t border-[var(--line)] bg-[var(--bg)]/95 backdrop-blur" style="display:none; left:var(--sidebar-w); right:0;">
     <div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
       <button type="button" id="btn-prev" class="btn-ghost text-[13px] font-medium px-4 py-2.5 rounded-lg transition">← Anterior</button>
       <div class="flex items-center gap-3">
@@ -797,12 +859,39 @@
   // ===== Navegación entre segmentos =====
   function mostrarSegmento(id){
     document.querySelectorAll('.segment-panel').forEach(s => s.classList.toggle('active', s.id === id));
-    document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === id));
+    const navBtn = document.querySelector(`.nav-item[data-tab="${id}"]`);
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+    document.getElementById('topbar-breadcrumb').textContent = navBtn ? navBtn.dataset.title : '';
     document.getElementById('action-bar').style.display = (id === 'seg-registro') ? 'block' : 'none';
+    document.querySelector('.content-area').scrollTo?.({top:0, behavior:'smooth'});
     window.scrollTo({top:0, behavior:'smooth'});
   }
-  document.querySelectorAll('[data-tab]').forEach(btn=>{
+  document.querySelectorAll('.nav-item[data-tab]').forEach(btn=>{
     btn.addEventListener('click', () => mostrarSegmento(btn.dataset.tab));
+  });
+
+  // ===== Colapsar / expandir sidebar =====
+  const sidebarEl = document.getElementById('sidebar');
+  document.getElementById('sidebar-toggle').addEventListener('click', () => {
+    const colapsado = sidebarEl.classList.toggle('collapsed');
+    document.documentElement.style.setProperty('--sidebar-w', colapsado ? '76px' : '250px');
+    document.getElementById('sidebar-toggle').textContent = colapsado ? '›' : '‹';
+  });
+
+  // ===== Modo oscuro (persistente) =====
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  function aplicarTema(tema){
+    document.documentElement.setAttribute('data-theme', tema);
+    themeToggleBtn.textContent = tema === 'dark' ? '☀️' : '🌙';
+    themeToggleBtn.title = tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+    try{ localStorage.setItem('pf-theme', tema); } catch(e){}
+  }
+  let temaGuardado = 'light';
+  try{ temaGuardado = localStorage.getItem('pf-theme') || 'light'; } catch(e){}
+  aplicarTema(temaGuardado);
+  themeToggleBtn.addEventListener('click', () => {
+    const actual = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    aplicarTema(actual);
   });
 
   // ===== Modo edición (registro cargado desde una búsqueda) =====
