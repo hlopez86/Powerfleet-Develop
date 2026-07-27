@@ -224,6 +224,8 @@
   #seg-constancia .ctc-doc-body p{ margin:6px 0; line-height:1.4; }
   #seg-constancia .ctc-doc-body ul{ margin:6px 0 8px 18px; line-height:1.4; }
   #seg-constancia .ctc-preview table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:12px; }
+  #seg-constancia .ctc-preview thead{ display:table-header-group; } /* repite encabezado en cada página al imprimir */
+  #seg-constancia .ctc-preview tr{ page-break-inside:avoid; break-inside:avoid; }
   #seg-constancia .ctc-preview th{ background:var(--ctc-pf-green); color:#fff; padding:6px; border:1px solid #2a6a57; }
   #seg-constancia .ctc-preview td{
     border:1px solid var(--ctc-border); padding:4px; text-align:center;
@@ -451,7 +453,10 @@
       <div class="bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-5 mb-7 shadow-sm">
         <div class="flex items-center justify-between mb-1">
           <p class="mono text-[10px] tracking-widest text-[var(--muted)] uppercase">Estado del registro</p>
-          <button type="button" id="btn-nuevo" class="hidden text-[11px] mono text-[var(--blue)] font-semibold hover:underline">+ Nuevo registro</button>
+          <div class="flex items-center gap-4">
+            <button type="button" id="btn-registro-constancia" class="text-[11px] mono font-semibold hover:underline" style="color:#0c3b2e">📄 Generar Constancia</button>
+            <button type="button" id="btn-nuevo" class="hidden text-[11px] mono text-[var(--blue)] font-semibold hover:underline">+ Nuevo registro</button>
+          </div>
         </div>
         <div id="banner-edicion" class="hidden mt-2 text-[12px] px-3 py-2 rounded-lg" style="background:color-mix(in srgb, var(--blue) 10%, white); border:1px solid color-mix(in srgb, var(--blue) 35%, transparent); color:var(--blue)">
           ✎ Editando un registro existente — los cambios sobrescribirán la fila original al sincronizar.
@@ -485,6 +490,7 @@
           <input type="text" id="buscar-cuenta-valor" placeholder="Escribe el nombre de la cuenta…" class="field-input flex-1" style="--tag-color:var(--orange)">
           <button type="button" id="btn-buscar-cuenta" class="btn-ghost text-[13px] font-medium px-5 py-2.5 rounded-lg transition whitespace-nowrap">Buscar</button>
           <button type="button" id="btn-exportar-cuenta" class="hidden text-[13px] font-medium px-5 py-2.5 rounded-lg transition whitespace-nowrap" style="background:var(--green); color:#fff; box-shadow:0 4px 14px rgba(0,100,78,0.22)">⬇ Exportar Excel</button>
+          <button type="button" id="btn-constancia-cuenta" class="hidden text-[13px] font-medium px-5 py-2.5 rounded-lg transition whitespace-nowrap" style="background:#0c3b2e; color:#fff; box-shadow:0 4px 14px rgba(12,59,46,0.25)">📄 Generar Constancia</button>
         </div>
         <p id="estado-cuenta" class="mono text-[11px] mt-2"></p>
       </div>
@@ -593,7 +599,7 @@
 
             <div class="ctc-footer">
               <div>Confidencial</div>
-              <div>Página 1</div>
+              <div id="ctc-footer-fecha"></div>
             </div>
           </div>
 
@@ -925,6 +931,24 @@
 
   document.getElementById('btn-nuevo').addEventListener('click', salirModoEdicion);
 
+  document.getElementById('btn-registro-constancia').addEventListener('click', () => {
+    const cliente = document.getElementById('c8').value.trim();
+    const marca   = document.getElementById('c13').value.trim();
+    const serie   = document.getElementById('c16').value.trim();
+
+    if(!cliente && !marca && !serie){
+      alert('Primero busca o captura un registro con al menos cuenta, marca o número de serie.');
+      return;
+    }
+
+    ctcPrecargarUnidades(cliente, [{
+      marca: marca,
+      submarca: document.getElementById('c14').value.trim(),
+      anio: document.getElementById('c15').value.trim(),
+      serie: serie
+    }]);
+  });
+
   // ===== SEGMENTO 1 · Búsqueda en vivo por N° de Serie =====
   let debounceSerie;
   const inputSerie = document.getElementById('buscar-serie');
@@ -1007,12 +1031,14 @@
   };
 
   const btnExportarCuenta = document.getElementById('btn-exportar-cuenta');
+  const btnConstanciaCuenta = document.getElementById('btn-constancia-cuenta');
   let ultimosRegistrosCuenta = [];
   let ultimaCuentaBuscada = '';
 
   document.getElementById('btn-buscar-cuenta').addEventListener('click', ejecutarBusquedaCuenta);
   inputCuenta.addEventListener('keydown', (e) => { if(e.key === 'Enter') ejecutarBusquedaCuenta(); });
   btnExportarCuenta.addEventListener('click', exportarExcelCuenta);
+  btnConstanciaCuenta.addEventListener('click', generarConstanciaDesdeCuenta);
 
   async function ejecutarBusquedaCuenta(){
     const valor = inputCuenta.value.trim();
@@ -1027,6 +1053,7 @@
     kpiCuenta.innerHTML = '';
     listaCuenta.innerHTML = '';
     btnExportarCuenta.classList.add('hidden');
+    btnConstanciaCuenta.classList.add('hidden');
     ultimosRegistrosCuenta = [];
     ultimaCuentaBuscada = valor;
 
@@ -1041,6 +1068,7 @@
         renderListaCuenta(data.registros);
         ultimosRegistrosCuenta = data.registros;
         btnExportarCuenta.classList.remove('hidden');
+        btnConstanciaCuenta.classList.remove('hidden');
       } else {
         estadoCuenta.textContent = data.error || 'No se encontraron registros para esa cuenta.';
         estadoCuenta.style.color = 'var(--danger)';
@@ -1068,6 +1096,26 @@
     const nombreLimpio = (ultimaCuentaBuscada || 'cuenta').trim().replace(/[^a-z0-9]+/gi, '_');
     const fecha = new Date().toISOString().slice(0,10);
     XLSX.writeFile(wb, `Registros_${nombreLimpio}_${fecha}.xlsx`);
+  }
+
+  function generarConstanciaDesdeCuenta(){
+    if(!ultimosRegistrosCuenta.length) return;
+
+    let registros = ultimosRegistrosCuenta;
+    if(registros.length > CTC_MAX_UNIDADES){
+      alert(`Esta cuenta tiene ${registros.length} unidades; la constancia soporta un máximo de ${CTC_MAX_UNIDADES}, se tomarán las primeras ${CTC_MAX_UNIDADES}.`);
+      registros = registros.slice(0, CTC_MAX_UNIDADES);
+    }
+
+    const cliente = registros[0].c8 || ultimaCuentaBuscada;
+    const unidades = registros.map(r => ({
+      marca: r.c13 || '',
+      submarca: r.c14 || '',
+      anio: r.c15 || '',
+      serie: r.c16 || ''
+    }));
+
+    ctcPrecargarUnidades(cliente, unidades);
   }
 
   function renderKpiCuenta(data){
@@ -1157,7 +1205,7 @@
   // ==================================================================
   // ===== MÓDULO CONSTANCIA (independiente, prefijo ctc-/Ctc) =====
   // ==================================================================
-  const CTC_MAX_UNIDADES = 10;
+  const CTC_MAX_UNIDADES = 500;
 
   function ctcSafeFilePart(text){
     if (!text) return "";
@@ -1229,7 +1277,7 @@
   function ctcAgregarUnidad(){
     const current = document.querySelectorAll("#seg-constancia .ctc-unidad-card").length;
     if (current >= CTC_MAX_UNIDADES){
-      alert("Máximo 10 unidades");
+      alert(`Máximo ${CTC_MAX_UNIDADES} unidades`);
       return;
     }
 
@@ -1301,6 +1349,7 @@
     tbody.innerHTML = "";
 
     const cards = document.querySelectorAll("#seg-constancia .ctc-unidad-card");
+    let totalFilas = 0;
     for (const card of cards){
       const marca = card.querySelector(".inp-marca")?.value || "";
       const sub = card.querySelector(".inp-submarca")?.value || "";
@@ -1311,7 +1360,14 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${marca}</td><td>${sub}</td><td>${anio}</td><td>${serie}</td>`;
         tbody.appendChild(tr);
+        totalFilas++;
       }
+    }
+
+    const footerFecha = document.getElementById("ctc-footer-fecha");
+    if (footerFecha){
+      const hoy = new Date();
+      footerFecha.innerText = `Generado ${hoy.toLocaleDateString("es-ES")} · ${totalFilas} unidad(es)`;
     }
   }
 
@@ -1343,10 +1399,41 @@
       filename,
       image: { type:"jpeg", quality:0.98 },
       html2canvas: { scale:2, logging:false },
-      jsPDF: { unit:"mm", format:"a4", orientation:"portrait" }
+      jsPDF: { unit:"mm", format:"a4", orientation:"portrait" },
+      pagebreak: { mode: ['css', 'legacy'] }
     };
 
     html2pdf().set(opt).from(element).toPdf().save();
+  }
+
+  // Precarga cliente + unidades desde otro módulo (Registro o Buscar por Cuenta) y muestra la vista previa
+  function ctcPrecargarUnidades(cliente, unidades){
+    document.getElementById('ctc-cliente').value = cliente || '';
+    if(!document.getElementById('ctc-fecha').value){
+      document.getElementById('ctc-fecha').value = new Date().toISOString().slice(0,10);
+    }
+
+    document.getElementById('ctc-unidadesContainer').innerHTML = '';
+    const lista = Array.isArray(unidades) ? unidades.slice(0, CTC_MAX_UNIDADES) : [];
+
+    if(lista.length === 0){
+      ctcAgregarUnidad();
+    } else {
+      lista.forEach(u => {
+        ctcAgregarUnidad();
+        const cards = document.querySelectorAll('#seg-constancia .ctc-unidad-card');
+        const card = cards[cards.length - 1];
+        card.querySelector('.inp-marca').value = u.marca || '';
+        card.querySelector('.inp-submarca').value = u.submarca || '';
+        card.querySelector('.inp-anio').value = u.anio || '';
+        card.querySelector('.inp-serie').value = u.serie || '';
+      });
+    }
+
+    ctcActualizarContador();
+    ctcGenerar();
+    mostrarSegmento('seg-constancia');
+    window.scrollTo({top:0, behavior:'smooth'});
   }
 
   // Inicia con 1 unidad por defecto
