@@ -1379,6 +1379,15 @@
       return;
     }
 
+    // Espera a que termine cualquier animación de aparición del panel (fade-in de 0.35s).
+    // Sin esto, si se descarga muy rápido tras cambiar de pestaña, la captura puede
+    // tomarse a mitad de la animación y verse "descolorida" (efecto marca de agua).
+    const panel = document.getElementById("seg-constancia");
+    if (panel && panel.getAnimations){
+      await Promise.all(panel.getAnimations().map(a => a.finished.catch(() => {})));
+    }
+    await new Promise(resolve => setTimeout(resolve, 400));
+
     await ctcWaitImg(document.getElementById("ctc-logoImg"));
     await ctcWaitImg(document.getElementById("ctc-firmaImg"));
 
